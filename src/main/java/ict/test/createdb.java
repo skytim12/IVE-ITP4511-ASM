@@ -22,7 +22,7 @@ public class createdb {
     String password = "";
 
     try {
-      Class.forName(driver).newInstance();
+      Class.forName(driver).getDeclaredConstructor().newInstance();
       Connection conn = DriverManager.getConnection(url, userName, password);
 
       Statement stmt = conn.createStatement();
