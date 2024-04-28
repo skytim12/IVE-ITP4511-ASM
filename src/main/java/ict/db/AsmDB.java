@@ -4,9 +4,12 @@
  */
 package ict.db;
 
+import ict.bean.UserBean;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -111,6 +114,91 @@ public class AsmDB {
 
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public boolean isValidUser(String username, String password) throws SQLException, IOException {
+        Statement stmnt = null;
+        Connection cnnct = null;
+        PreparedStatement pstmt = null;
+        String query = "SELECT COUNT(*) FROM Users WHERE Username = ? AND Password = ?";
+        try {
+            cnnct = getConnection();
+            stmnt = cnnct.createStatement();
+            pstmt = cnnct.prepareStatement(query);
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    public UserBean getUser(String username, String password) throws SQLException {
+        String query = "SELECT UserID, Username, Password, Role, FullName, Campus FROM Users WHERE Username = ? AND Password = ?";
+        Statement stmnt = null;
+        Connection cnnct = null;
+        PreparedStatement pstmt = null;
+        try {
+            cnnct = getConnection();
+            stmnt = cnnct.createStatement();
+            pstmt = cnnct.prepareStatement(query);
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    UserBean user = new UserBean();
+                    user.setUserID(rs.getString("UserID"));
+                    user.setUsername(rs.getString("Username"));
+                    user.setPassword(rs.getString("Password"));  
+                    user.setRole(rs.getString("Role"));
+                    user.setFullName(rs.getString("FullName"));
+                    user.setCampus(rs.getString("Campus"));
+                    return user;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean addUser(UserBean user) throws SQLException, IOException {
+        String query = "INSERT INTO Users (UserID, Username, Password, Role, FullName, Campus) VALUES (?, ?, ?, ?, ?, ?)";
+        Connection cnnct = null;
+        PreparedStatement pstmt = null;
+        try {
+            cnnct = getConnection();
+            pstmt = cnnct.prepareStatement(query);
+
+            pstmt.setString(1, user.getUserID());
+            pstmt.setString(2, user.getUsername());
+            pstmt.setString(3, user.getPassword());
+            pstmt.setString(4, user.getRole());
+            pstmt.setString(5, user.getFullName());
+            pstmt.setString(6, user.getCampus());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } finally {
+            
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (cnnct != null) {
+                cnnct.close();
+            }
         }
     }
 
