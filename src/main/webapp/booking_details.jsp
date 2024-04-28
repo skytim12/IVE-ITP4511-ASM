@@ -4,14 +4,14 @@
     Author     : Soman 
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Booking Details</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Equipment Booking Details</h1>
+        <!-- Details to be fetched by BookingDetailsServlet -->
     </body>
 </html>

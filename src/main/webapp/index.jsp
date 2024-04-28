@@ -4,14 +4,20 @@
     Author     : Soman 
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Home Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Welcome to the Equipment Borrowing System</h1>
+        <nav>
+            <ul>
+                <li><a href="equipment_list.jsp">View Equipment</a></li>
+                <li><a href="borrowing_records.jsp">My Borrowing Records</a></li>
+                <li><a href="profile.jsp">My Profile</a></li>
+            </ul>
+        </nav>
     </body>
 </html>

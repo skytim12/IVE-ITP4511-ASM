@@ -4,14 +4,14 @@
     Author     : Soman 
 --%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Inventory Management</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Inventory Management</h1>
+        <!-- Inventory management forms and lists handled by InventoryManagementServlet -->
     </body>
 </html>
