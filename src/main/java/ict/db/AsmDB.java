@@ -52,7 +52,7 @@ public class AsmDB {
                 + "FullName VARCHAR(255), "
                 + "Campus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'))",
                 "CREATE TABLE IF NOT EXISTS Equipment (EquipmentID INT AUTO_INCREMENT PRIMARY KEY, "
-                + "Name VARCHAR(255) NOT NULL, "    
+                + "Name VARCHAR(255) NOT NULL, "
                 + "Description TEXT, "
                 + "AvailableQuantity INT DEFAULT 0, "
                 + "TotalQuantity INT DEFAULT 0, "
@@ -89,7 +89,7 @@ public class AsmDB {
                 + "FOREIGN KEY (CourierID) REFERENCES Users(UserID))",
                 "CREATE TABLE IF NOT EXISTS DamageReports (ReportID INT AUTO_INCREMENT PRIMARY KEY, "
                 + "EquipmentID INT, "
-                + "    ReportedBy VARCHAR(20), "
+                + "ReportedBy VARCHAR(20), "
                 + "ReportDate DATETIME, "
                 + "Description TEXT, "
                 + "Status ENUM('Reported', 'Confirmed', 'Resolved'), "
