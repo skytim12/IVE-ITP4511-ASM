@@ -6,6 +6,8 @@
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
+<%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
     <head>
         <title>User Dashboard</title>
@@ -18,8 +20,33 @@
                 <li><a href="browseEquipment.jsp">Browse Equipment</a></li>
             </ul>
         </nav>
-        <footer>
-            <p><a href="main?action=logout">Logout</a></p>
-        </footer>
+        <ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Available</th>
+                        <th>Campus</th>
+                        <th>Condition</th>
+                        <th>Total</th>
+                        <th>Description</th> <!-- Added Description header -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="equipment" items="${equipmentList}">
+                        <tr>
+                            <td>${equipment.name}</td>
+                            <td>${equipment.available}</td>
+                            <td>${equipment.campus}</td>
+                            <td>${equipment.condition}</td>
+                            <td>${equipment.totalQuantity}</td>
+                            <td>${equipment.description}</td> <!-- Added Description data -->
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+            <footer>
+                <p><a href="main?action=logout">Logout</a></p>
+            </footer>
     </body>
 </html>

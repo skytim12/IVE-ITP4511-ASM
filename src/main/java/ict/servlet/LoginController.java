@@ -116,7 +116,8 @@ public class LoginController extends HttpServlet {
             case "Staff":
                 return "/staff_dashboard.jsp";
             default:
-                return "/user_dashboard.jsp";
+                return "/UserDashboard";
         }
     }
 }
+

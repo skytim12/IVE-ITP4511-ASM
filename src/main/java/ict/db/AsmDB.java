@@ -4,7 +4,7 @@
  */
 package ict.db;
 
-import ict.bean.UserBean;
+import ict.bean.*;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -54,15 +56,14 @@ public class AsmDB {
                 + "Role ENUM('GeneralUser', 'Technician', 'Courier', 'Staff', 'AdminTechnician') NOT NULL, "
                 + "FullName VARCHAR(255), "
                 + "Campus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'))",
-                "CREATE TABLE IF NOT EXISTS Equipment (EquipmentID INT AUTO_INCREMENT PRIMARY KEY, "
+                "CREATE TABLE IF NOT EXISTS Equipment (EquipmentID VARCHAR(10) PRIMARY KEY, "
                 + "Name VARCHAR(255) NOT NULL, "
                 + "Description TEXT, "
-                + "AvailableQuantity INT DEFAULT 0, "
-                + "TotalQuantity INT DEFAULT 0, "
+                + "Available ENUM('Yes', 'No') DEFAULT 'Yes', "
                 + "Campus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
                 + "EquipmentCondition ENUM('New', 'Good', 'Fair', 'Poor', 'Out of Service') NOT NULL DEFAULT 'Good')",
                 "CREATE TABLE IF NOT EXISTS Reservation (ReservationID INT AUTO_INCREMENT PRIMARY KEY, "
-                + "EquipmentID INT, "
+                + "EquipmentID VARCHAR(10), "
                 + "UserID VARCHAR(20), "
                 + "ReservedFrom DATE, "
                 + "ReservedTo DATE, "
@@ -76,12 +77,12 @@ public class AsmDB {
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID))",
                 "CREATE TABLE IF NOT EXISTS Wishlist (WishlistID INT AUTO_INCREMENT PRIMARY KEY, "
                 + "UserID VARCHAR(20), "
-                + "EquipmentID INT, "
+                + "EquipmentID VARCHAR(10), "
                 + "DateAdded DATE, "
                 + "FOREIGN KEY (UserID) REFERENCES Users(UserID), "
                 + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID))",
                 "CREATE TABLE IF NOT EXISTS Delivery (DeliveryID INT AUTO_INCREMENT PRIMARY KEY, "
-                + "EquipmentID INT, "
+                + "EquipmentID VARCHAR(10), "
                 + "FromCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
                 + "ToCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
                 + "CourierID VARCHAR(20), "
@@ -91,7 +92,7 @@ public class AsmDB {
                 + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID), "
                 + "FOREIGN KEY (CourierID) REFERENCES Users(UserID))",
                 "CREATE TABLE IF NOT EXISTS DamageReports (ReportID INT AUTO_INCREMENT PRIMARY KEY, "
-                + "EquipmentID INT, "
+                + "EquipmentID VARCHAR(10), "
                 + "ReportedBy VARCHAR(20), "
                 + "ReportDate DATETIME, "
                 + "Description TEXT, "
@@ -159,7 +160,7 @@ public class AsmDB {
                     UserBean user = new UserBean();
                     user.setUserID(rs.getString("UserID"));
                     user.setUsername(rs.getString("Username"));
-                    user.setPassword(rs.getString("Password"));  
+                    user.setPassword(rs.getString("Password"));
                     user.setRole(rs.getString("Role"));
                     user.setFullName(rs.getString("FullName"));
                     user.setCampus(rs.getString("Campus"));
@@ -192,7 +193,99 @@ public class AsmDB {
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } finally {
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (cnnct != null) {
+                cnnct.close();
+            }
+        }
+    }
+
+    public List<EquipmentBean> fetchEquipmentList() throws SQLException, IOException {
+        List<EquipmentBean> equipmentList = new ArrayList<>();
+        String query = "SELECT EquipmentID, Name, Description, Available, Campus, EquipmentCondition FROM Equipment";
+        try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                EquipmentBean equipment = new EquipmentBean();
+                equipment.setEquipmentID(rs.getString("EquipmentID"));
+                equipment.setName(rs.getString("Name"));
+                equipment.setDescription(rs.getString("Description"));
+                equipment.setAvailable(rs.getString("Available"));
+                equipment.setCampus(rs.getString("Campus"));
+                equipment.setCondition(rs.getString("EquipmentCondition"));
+                equipmentList.add(equipment);
+            }
+        } catch (SQLException ex) {
+            System.out.println("SQL Error: " + ex.getMessage());
+            ex.printStackTrace();
             
+            // Consider throwing the exception or handling it so that it alerts the caller.
+        }
+        return equipmentList;
+    }
+    
+    public List<EquipmentBean> fetchGroupedEquipment() throws SQLException, IOException {
+    List<EquipmentBean> groupedEquipmentList = new ArrayList<>();
+    String query = "SELECT Name, Description, Available, Campus, EquipmentCondition, COUNT(*) AS TotalQuantity FROM Equipment GROUP BY Name, Available, Campus, EquipmentCondition";
+    try (Connection cnnct = getConnection();
+         PreparedStatement pstmt = cnnct.prepareStatement(query);
+         ResultSet rs = pstmt.executeQuery()) {
+
+        while (rs.next()) {
+            EquipmentBean equipment = new EquipmentBean();
+            equipment.setName(rs.getString("Name"));
+            equipment.setDescription(rs.getString("Description"));
+            equipment.setAvailable(rs.getString("Available"));
+            equipment.setCampus(rs.getString("Campus"));
+            equipment.setCondition(rs.getString("EquipmentCondition"));
+            equipment.setTotalQuantity(rs.getInt("TotalQuantity"));
+            groupedEquipmentList.add(equipment);
+        }
+    } catch (SQLException ex) {
+        System.out.println("SQL Error: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+    return groupedEquipmentList;
+}
+
+
+    public String generateUniqueEquipmentID() throws SQLException, IOException {
+        String equipmentID = null;
+        try (Connection cnnct = getConnection(); Statement stmnt = cnnct.createStatement(); ResultSet rs = stmnt.executeQuery("SELECT EquipmentID FROM Equipment ORDER BY EquipmentID DESC LIMIT 1")) {
+
+            if (rs.next()) {
+                String lastEquipmentID = rs.getString("EquipmentID");
+                int lastNumber = Integer.parseInt(lastEquipmentID.substring(2));
+                int nextNumber = lastNumber + 1;
+                equipmentID = "EQ" + String.format("%03d", nextNumber);
+            } else {
+                equipmentID = "EQ001";
+            }
+        }
+        return equipmentID;
+    }
+
+    public boolean addEquipment(EquipmentBean equipment) throws SQLException, IOException {
+        String query = "INSERT INTO Equipment (EquipmentID, Name, Description, Available, Campus, EquipmentCondition) VALUES (?, ?, ?, ?, ?, ?)";
+        Connection cnnct = null;
+        PreparedStatement pstmt = null;
+        try {
+            cnnct = getConnection();
+            pstmt = cnnct.prepareStatement(query);
+
+            pstmt.setString(1, equipment.getEquipmentID());
+            pstmt.setString(2, equipment.getName());
+            pstmt.setString(3, equipment.getDescription());
+            pstmt.setString(4, equipment.getAvailable());
+            pstmt.setString(5, equipment.getCampus());
+            pstmt.setString(6, equipment.getCondition());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } finally {
             if (pstmt != null) {
                 pstmt.close();
             }

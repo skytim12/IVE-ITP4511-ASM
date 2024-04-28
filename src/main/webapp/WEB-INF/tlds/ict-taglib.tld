@@ -32,4 +32,10 @@
         </attribute>
     </tag>
     
+    <tag>
+        <name>equipmentListTag</name>
+        <tag-class>ict.tags.EquipmentListTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+    
 </taglib>

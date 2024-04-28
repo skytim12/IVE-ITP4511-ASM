@@ -4,40 +4,42 @@
  */
 package ict.bean;
 
+
+
 /**
  *
  * @author Soman
  */
 public class EquipmentBean {
 
-    private int equipmentID;
+
+    private String equipmentID;
     private String name;
     private String description;
-    private int availableQuantity;
-    private int totalQuantity;
+    private String available;
     private String campus;
     private String condition;
+    private int TotalQuantity;
 
-    
-    public EquipmentBean() {
+    public EquipmentBean() {  
     }
 
-    public EquipmentBean(int equipmentID, String name, String description, int availableQuantity, int totalQuantity, String campus, String condition) {
+    public EquipmentBean(String equipmentID, String name, String description, String available, String campus, String condition) {
         this.equipmentID = equipmentID;
         this.name = name;
         this.description = description;
-        this.availableQuantity = availableQuantity;
-        this.totalQuantity = totalQuantity;
+        this.available = available;
         this.campus = campus;
         this.condition = condition;
     }
 
 
-    public int getEquipmentID() {
+
+    public String getEquipmentID() {
         return equipmentID;
     }
 
-    public void setEquipmentID(int equipmentID) {
+    public void setEquipmentID(String equipmentID) {
         this.equipmentID = equipmentID;
     }
 
@@ -57,20 +59,12 @@ public class EquipmentBean {
         this.description = description;
     }
 
-    public int getAvailableQuantity() {
-        return availableQuantity;
+    public String getAvailable() {
+        return available;
     }
 
-    public void setAvailableQuantity(int availableQuantity) {
-        this.availableQuantity = availableQuantity;
-    }
-
-    public int getTotalQuantity() {
-        return totalQuantity;
-    }
-
-    public void setTotalQuantity(int totalQuantity) {
-        this.totalQuantity = totalQuantity;
+    public void setAvailable(String available) {
+        this.available = available;
     }
 
     public String getCampus() {
@@ -87,5 +81,13 @@ public class EquipmentBean {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+    
+     public int getTotalQuantity() {
+        return TotalQuantity;
+    }
+
+    public void setTotalQuantity(int TotalQuantity) {
+        this.TotalQuantity = TotalQuantity;
     }
 }

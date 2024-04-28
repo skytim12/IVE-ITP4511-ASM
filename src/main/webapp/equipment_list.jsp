@@ -5,13 +5,17 @@
 --%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
 <!DOCTYPE html>
 <html>
     <head>
         <title>Equipment List</title>
     </head>
     <body>
-        <h1>Available Equipment</h1>
-        <!-- Dynamic list generation will be handled by a servlet -->
+        <h1>Equipment List</h1>
+        <ul>
+            <ict:errorMessage message="An error occurred while fetching equipment data." />
+            <ict:equipmentListTag />
+        </ul>
     </body>
 </html>
