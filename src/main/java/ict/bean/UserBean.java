@@ -15,22 +15,20 @@ public class UserBean {
     private String password;
     private String role;
     private String fullName;
-    private String campus;
+    private String CampusName;
 
-    
     public UserBean() {
     }
 
-    public UserBean(String userID, String username, String password, String role, String fullName, String campus) {
+    public UserBean(String userID, String username, String password, String role, String fullName, String CampusName) {
         this.userID = userID;
         this.username = username;
         this.password = password;
         this.role = role;
         this.fullName = fullName;
-        this.campus = campus;
+        this.CampusName = CampusName;
     }
 
-    
     public String getUserID() {
         return userID;
     }
@@ -71,11 +69,11 @@ public class UserBean {
         this.fullName = fullName;
     }
 
-    public String getCampus() {
-        return campus;
+    public String getCampusName() {
+        return CampusName;
     }
 
-    public void setCampus(String campus) {
-        this.campus = campus;
+    public void setCampusName(String CampusName) {
+        this.CampusName = CampusName;
     }
 }

@@ -29,7 +29,7 @@ public class TestAddEquipment {
             equipment.setName("Laptop");
             equipment.setDescription("Brand new laptop");
             equipment.setAvailable("Yes");
-            equipment.setCampus("Chai Wan");
+            equipment.setCampusName("Chai Wan");
             equipment.setCondition("New");
 
             boolean success = asmDB.addEquipment(equipment);

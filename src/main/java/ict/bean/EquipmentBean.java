@@ -17,19 +17,19 @@ public class EquipmentBean {
     private String name;
     private String description;
     private String available;
-    private String campus;
+    private String CampusName;
     private String condition;
     private int TotalQuantity;
 
     public EquipmentBean() {  
     }
 
-    public EquipmentBean(String equipmentID, String name, String description, String available, String campus, String condition) {
+    public EquipmentBean(String equipmentID, String name, String description, String available, String CampusName, String condition) {
         this.equipmentID = equipmentID;
         this.name = name;
         this.description = description;
         this.available = available;
-        this.campus = campus;
+        this.CampusName = CampusName;
         this.condition = condition;
     }
 
@@ -67,12 +67,12 @@ public class EquipmentBean {
         this.available = available;
     }
 
-    public String getCampus() {
-        return campus;
+    public String getCampusName() {
+        return CampusName;
     }
 
-    public void setCampus(String campus) {
-        this.campus = campus;
+    public void setCampusName(String CampusName) {
+        this.CampusName = CampusName;
     }
 
     public String getCondition() {

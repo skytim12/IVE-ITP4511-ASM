@@ -22,12 +22,12 @@ public class TestAddUser {
 
         AsmDB asmDB = new AsmDB(url, username, password);
         UserBean newUser = new UserBean();
-        newUser.setUserID("soman0501");
+        newUser.setUserID("220014863");
         newUser.setUsername("Soman");
         newUser.setPassword("123456");
         newUser.setRole("GeneralUser");
         newUser.setFullName("Soaman Tsang");
-        newUser.setCampus("Sha Tin");
+        newUser.setCampusName("Sha Tin");
 
         try {
            
