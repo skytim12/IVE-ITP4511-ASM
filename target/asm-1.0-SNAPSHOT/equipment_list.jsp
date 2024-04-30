@@ -6,6 +6,7 @@
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -13,9 +14,41 @@
     </head>
     <body>
         <h1>Equipment List</h1>
-        <ul>
-            <ict:errorMessage message="An error occurred while fetching equipment data." />
-            <ict:equipmentListTag />
-        </ul>
+        <nav>
+            <ul>
+               
+                <c:if test="${not empty dashboardURL}">
+                    <li><a href="${dashboardURL}">DashBoard</a></li>
+                    </c:if>
+                <li><a href="/EquipmentController">All Equipment</a></li>
+                <li><a href="borrowing_records.jsp">My Reservations</a></li>
+                <li><a href="profile.jsp">Profile</a></li>
+            </ul>
+        </nav>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Available</th>
+                    <th>Campus</th>
+                    <th>Condition</th>
+                    <th>Description</th> 
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="equipment" items="${equipmentList}">
+                    <tr>
+                        <td>${equipment.name}</td>
+                        <td>${equipment.available}</td>
+                        <td>${equipment.campusName}</td>
+                        <td>${equipment.condition}</td>
+                        <td>${equipment.description}</td>
+                        <td>${equipment.totalQuantity}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+
     </body>
 </html>

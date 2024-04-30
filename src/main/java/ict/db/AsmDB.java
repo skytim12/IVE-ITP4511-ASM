@@ -66,6 +66,7 @@ public class AsmDB {
                 + "FOREIGN KEY (CampusName) REFERENCES Campus(CampusName)"
                 + ")",
                 // Create Equipment table
+                // Create Equipment table
                 "CREATE TABLE IF NOT EXISTS Equipment ("
                 + "EquipmentID VARCHAR(10) PRIMARY KEY, "
                 + "Name VARCHAR(255) NOT NULL, "
@@ -73,6 +74,7 @@ public class AsmDB {
                 + "Available ENUM('Yes', 'No') DEFAULT 'Yes', "
                 + "CampusName ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
                 + "EquipmentCondition ENUM('New', 'Good', 'Fair', 'Poor', 'Out of Service') NOT NULL DEFAULT 'Good', "
+                + "ExclusiveForStaff ENUM('Yes', 'No') DEFAULT 'No', " // New column
                 + "FOREIGN KEY (CampusName) REFERENCES Campus(CampusName)"
                 + ")",
                 // Create Reservation table
@@ -174,7 +176,7 @@ public class AsmDB {
     }
 
     public UserBean getUser(String username, String password) throws SQLException {
-        String query = "SELECT UserID, Username, Password, Role, FullName, Campus FROM Users WHERE Username = ? AND Password = ?";
+        String query = "SELECT UserID, Username, Password, Role, FullName, CampusName FROM Users WHERE Username = ? AND Password = ?";
         Statement stmnt = null;
         Connection cnnct = null;
         PreparedStatement pstmt = null;
@@ -244,6 +246,34 @@ public class AsmDB {
         }
     }
 
+    public boolean addEquipment(EquipmentBean equipment) throws SQLException, IOException {
+        String query = "INSERT INTO Equipment (EquipmentID, Name, Description, Available, CampusName, EquipmentCondition, ExclusiveForStaff) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        Connection cnnct = null;
+        PreparedStatement pstmt = null;
+        try {
+            cnnct = getConnection();
+            pstmt = cnnct.prepareStatement(query);
+
+            pstmt.setString(1, equipment.getEquipmentID());
+            pstmt.setString(2, equipment.getName());
+            pstmt.setString(3, equipment.getDescription());
+            pstmt.setString(4, equipment.getAvailable());
+            pstmt.setString(5, equipment.getCampusName());
+            pstmt.setString(6, equipment.getCondition());
+            pstmt.setString(7, equipment.getExclusiveForStaff());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (cnnct != null) {
+                cnnct.close();
+            }
+        }
+    }
+
     public List<EquipmentBean> fetchEquipmentList() throws SQLException, IOException {
         List<EquipmentBean> equipmentList = new ArrayList<>();
         String query = "SELECT EquipmentID, Name, Description, Available, CampusName, EquipmentCondition FROM Equipment";
@@ -263,14 +293,13 @@ public class AsmDB {
             System.out.println("SQL Error: " + ex.getMessage());
             ex.printStackTrace();
 
-            // Consider throwing the exception or handling it so that it alerts the caller.
         }
         return equipmentList;
     }
 
     public List<EquipmentBean> fetchGroupedEquipment() throws SQLException, IOException {
         List<EquipmentBean> groupedEquipmentList = new ArrayList<>();
-        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity FROM Equipment GROUP BY Name, Available, Campus, EquipmentCondition";
+        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity FROM Equipment GROUP BY Name, Available, CampusName, EquipmentCondition";
         try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
@@ -306,31 +335,29 @@ public class AsmDB {
         return equipmentID;
     }
 
-    public boolean addEquipment(EquipmentBean equipment) throws SQLException, IOException {
-        String query = "INSERT INTO Equipment (EquipmentID, Name, Description, Available, CampusName, EquipmentCondition) VALUES (?, ?, ?, ?, ?, ?)";
-        Connection cnnct = null;
-        PreparedStatement pstmt = null;
-        try {
-            cnnct = getConnection();
-            pstmt = cnnct.prepareStatement(query);
+    public List<EquipmentBean> UserfetchReservableEquipmentList() throws SQLException, IOException {
+        List<EquipmentBean> reservableEquipmentList = new ArrayList<>();
+        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity "
+                + "FROM Equipment "
+                + "WHERE Available = 'Yes' AND EquipmentCondition != 'Out of Service' AND ExclusiveForStaff = 'No' "
+                + "GROUP BY Name, Description, Available, CampusName, EquipmentCondition";
+        try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
-            pstmt.setString(1, equipment.getEquipmentID());
-            pstmt.setString(2, equipment.getName());
-            pstmt.setString(3, equipment.getDescription());
-            pstmt.setString(4, equipment.getAvailable());
-            pstmt.setString(5, equipment.getCampusName());
-            pstmt.setString(6, equipment.getCondition());
-
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
+            while (rs.next()) {
+                EquipmentBean equipment = new EquipmentBean();
+                equipment.setName(rs.getString("Name"));
+                equipment.setDescription(rs.getString("Description"));
+                equipment.setAvailable(rs.getString("Available"));
+                equipment.setCampusName(rs.getString("CampusName"));
+                equipment.setCondition(rs.getString("EquipmentCondition"));
+                equipment.setTotalQuantity(rs.getInt("TotalQuantity"));
+                reservableEquipmentList.add(equipment);
             }
-            if (cnnct != null) {
-                cnnct.close();
-            }
+        } catch (SQLException ex) {
+            System.out.println("SQL Error: " + ex.getMessage());
+            ex.printStackTrace();
         }
+        return reservableEquipmentList;
     }
 
 }

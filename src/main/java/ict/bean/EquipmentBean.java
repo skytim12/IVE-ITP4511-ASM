@@ -4,14 +4,11 @@
  */
 package ict.bean;
 
-
-
 /**
  *
  * @author Soman
  */
 public class EquipmentBean {
-
 
     private String equipmentID;
     private String name;
@@ -20,8 +17,9 @@ public class EquipmentBean {
     private String CampusName;
     private String condition;
     private int TotalQuantity;
+    private String exclusiveForStaff;
 
-    public EquipmentBean() {  
+    public EquipmentBean() {
     }
 
     public EquipmentBean(String equipmentID, String name, String description, String available, String CampusName, String condition) {
@@ -32,8 +30,6 @@ public class EquipmentBean {
         this.CampusName = CampusName;
         this.condition = condition;
     }
-
-
 
     public String getEquipmentID() {
         return equipmentID;
@@ -82,12 +78,20 @@ public class EquipmentBean {
     public void setCondition(String condition) {
         this.condition = condition;
     }
-    
-     public int getTotalQuantity() {
+
+    public int getTotalQuantity() {
         return TotalQuantity;
     }
 
     public void setTotalQuantity(int TotalQuantity) {
         this.TotalQuantity = TotalQuantity;
+    }
+
+    public String getExclusiveForStaff() {
+        return exclusiveForStaff;
+    }
+
+    public void setExclusiveForStaff(String exclusiveForStaff) {
+        this.exclusiveForStaff = exclusiveForStaff;
     }
 }

@@ -25,16 +25,16 @@ public class UserDashboardServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        // Fetch database connection parameters from servlet context
+       
         String dbUser = this.getServletContext().getInitParameter("dbUser");
         String dbPassword = this.getServletContext().getInitParameter("dbPassword");
         String dbUrl = this.getServletContext().getInitParameter("dbUrl");
-        db = new AsmDB(dbUrl, dbUser, dbPassword);  // Initialize AsmDB with context parameters
+        db = new AsmDB(dbUrl, dbUser, dbPassword);  
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            List<EquipmentBean> equipmentList = db.fetchGroupedEquipment();
+            List<EquipmentBean> equipmentList = db.UserfetchReservableEquipmentList();
             request.setAttribute("equipmentList", equipmentList);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Error fetching equipment data: " + e.getMessage());

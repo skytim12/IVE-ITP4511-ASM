@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ict.test;
 
 import ict.bean.EquipmentBean;
@@ -9,10 +5,6 @@ import ict.db.AsmDB;
 import java.io.IOException;
 import java.sql.SQLException;
 
-/**
- *
- * @author Soman
- */
 public class TestAddEquipment {
 
     public static void main(String[] args) throws IOException {
@@ -22,22 +14,60 @@ public class TestAddEquipment {
 
         AsmDB asmDB = new AsmDB(url, username, password);
         try {
-            String equipmentID = asmDB.generateUniqueEquipmentID();
+            String[] equipmentTypes = {"Laptop", "Desktop", "Printer", "Projector", "Scanner"};
 
-            EquipmentBean equipment = new EquipmentBean();
-            equipment.setEquipmentID(equipmentID);
-            equipment.setName("Laptop");
-            equipment.setDescription("Brand new laptop");
-            equipment.setAvailable("Yes");
-            equipment.setCampusName("Chai Wan");
-            equipment.setCondition("New");
+            for (int i = 0; i < 30; i++) {
+                String equipmentID = asmDB.generateUniqueEquipmentID();
 
-            boolean success = asmDB.addEquipment(equipment);
+                EquipmentBean equipment = new EquipmentBean();
+                equipment.setEquipmentID(equipmentID);
 
-            if (success) {
-                System.out.println("Equipment added successfully.");
-            } else {
-                System.out.println("Failed to add equipment.");
+                int typeIndex = (int) (Math.random() * equipmentTypes.length);
+                String equipmentType = equipmentTypes[typeIndex];
+                equipment.setName(equipmentType);
+
+                String description = "";
+                switch (equipmentType) {
+                    case "Laptop":
+                        description = "Brand new laptop";
+                        break;
+                    case "Desktop":
+                        description = "High-performance desktop computer";
+                        break;
+                    case "Printer":
+                        description = "Color laser printer";
+                        break;
+                    case "Projector":
+                        description = "HD projector with HDMI input";
+                        break;
+                    case "Scanner":
+                        description = "Flatbed scanner with document feeder";
+                        break;
+                }
+                equipment.setDescription(description);
+
+                
+                int randomAvailable = (int) (Math.random() * 2); 
+                equipment.setAvailable(randomAvailable == 1 ? "Yes" : "No");
+
+                String[] campusNames = {"Chai Wan", "Lee Wai Lee", "Sha Tin", "Tuen Mun", "Tsing Yi"};
+                int campusIndex = (int) (Math.random() * campusNames.length);
+                equipment.setCampusName(campusNames[campusIndex]);
+
+                String[] conditions = {"New", "Good", "Fair", "Poor", "Out of Service"};
+                int conditionIndex = (int) (Math.random() * conditions.length);
+                equipment.setCondition(conditions[conditionIndex]);
+                
+                int randomExclusive = (int) (Math.random() * 2); 
+                equipment.setExclusiveForStaff(randomExclusive == 1 ? "Yes" : "No");
+
+                boolean success = asmDB.addEquipment(equipment);
+
+                if (success) {
+                    System.out.println("Equipment added successfully.");
+                } else {
+                    System.out.println("Failed to add equipment.");
+                }
             }
 
         } catch (SQLException | IOException e) {

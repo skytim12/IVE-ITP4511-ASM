@@ -16,10 +16,13 @@
         <h1>Welcome, User!</h1>
         <nav>
             <ul>
-                <li><a href="viewMyReservations.jsp">My Reservations</a></li>
-                <li><a href="browseEquipment.jsp">Browse Equipment</a></li>
+                <li><a href="/UserDashboard">DashBoard</a></li>
+                <li><a href="/EquipmentController">All Equipment</a></li>
+                <li><a href="borrowing_records.jsp">My Reservations</a></li>
+                <li><a href="profile.jsp">Profile</a></li>
             </ul>
         </nav>
+
         <ul>
             <table>
                 <thead>
@@ -28,8 +31,8 @@
                         <th>Available</th>
                         <th>Campus</th>
                         <th>Condition</th>
+                        <th>Description</th> 
                         <th>Total</th>
-                        <th>Description</th> <!-- Added Description header -->
                     </tr>
                 </thead>
                 <tbody>
@@ -37,10 +40,10 @@
                         <tr>
                             <td>${equipment.name}</td>
                             <td>${equipment.available}</td>
-                            <td>${equipment.campus}</td>
+                            <td>${equipment.campusName}</td>
                             <td>${equipment.condition}</td>
+                            <td>${equipment.description}</td>
                             <td>${equipment.totalQuantity}</td>
-                            <td>${equipment.description}</td> <!-- Added Description data -->
                         </tr>
                     </c:forEach>
                 </tbody>

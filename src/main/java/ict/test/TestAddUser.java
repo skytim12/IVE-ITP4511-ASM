@@ -21,26 +21,49 @@ public class TestAddUser {
         String password = "";
 
         AsmDB asmDB = new AsmDB(url, username, password);
-        UserBean newUser = new UserBean();
-        newUser.setUserID("220014863");
-        newUser.setUsername("Soman");
-        newUser.setPassword("123456");
-        newUser.setRole("GeneralUser");
-        newUser.setFullName("Soaman Tsang");
-        newUser.setCampusName("Sha Tin");
 
+        // Adding a GeneralUser
+        UserBean generalUser = createUser("220014863", "Soman", "123456", "GeneralUser", "Soaman Tsang", "Sha Tin");
+        addUser(asmDB, generalUser);
+
+        // Adding a Technician
+        UserBean technician = createUser("220014864", "Tech", "password123", "Technician", "Technician 1", "Chai Wan");
+        addUser(asmDB, technician);
+
+        // Adding a Courier
+        UserBean courier = createUser("220014865", "Courier", "password456", "Courier", "Courier 1", "Lee Wai Lee");
+        addUser(asmDB, courier);
+
+        // Adding a Staff
+        UserBean staff = createUser("220014866", "Staff", "password789", "Staff", "Staff 1", "Tuen Mun");
+        addUser(asmDB, staff);
+
+        // Adding an AdminTechnician
+        UserBean adminTechnician = createUser("220014867", "Admin", "admin123", "AdminTechnician", "Admin Technician 1", "Tsing Yi");
+        addUser(asmDB, adminTechnician);
+    }
+
+    private static UserBean createUser(String userID, String username, String password, String role, String fullName, String campusName) {
+        UserBean user = new UserBean();
+        user.setUserID(userID);
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setRole(role);
+        user.setFullName(fullName);
+        user.setCampusName(campusName);
+        return user;
+    }
+
+    private static void addUser(AsmDB asmDB, UserBean user) {
         try {
-           
-            boolean success = asmDB.addUser(newUser);
+            boolean success = asmDB.addUser(user);
             if (success) {
-                System.out.println("User added successfully.");
+                System.out.println("User added successfully: " + user.getUsername());
             } else {
-                System.out.println("Failed to add user.");
+                System.out.println("Failed to add user: " + user.getUsername());
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
-
     }
-
 }
