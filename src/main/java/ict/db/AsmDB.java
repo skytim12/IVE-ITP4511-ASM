@@ -66,7 +66,6 @@ public class AsmDB {
                 + "FOREIGN KEY (CampusName) REFERENCES Campus(CampusName)"
                 + ")",
                 // Create Equipment table
-                // Create Equipment table
                 "CREATE TABLE IF NOT EXISTS Equipment ("
                 + "EquipmentID VARCHAR(10) PRIMARY KEY, "
                 + "Name VARCHAR(255) NOT NULL, "
@@ -80,13 +79,19 @@ public class AsmDB {
                 // Create Reservation table
                 "CREATE TABLE IF NOT EXISTS Reservation ("
                 + "ReservationID INT AUTO_INCREMENT PRIMARY KEY, "
-                + "EquipmentID VARCHAR(10), "
                 + "UserID VARCHAR(20), "
                 + "ReservedFrom DATE, "
                 + "ReservedTo DATE, "
                 + "Status ENUM('Reserved', 'Borrowed', 'Returned', 'Cancelled') DEFAULT 'Reserved', "
-                + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID), "
                 + "FOREIGN KEY (UserID) REFERENCES Users(UserID)"
+                + ")",
+                // Create ReservationEquipment table
+                "CREATE TABLE IF NOT EXISTS ReservationEquipment ("
+                + "ReservationID INT, "
+                + "EquipmentID VARCHAR(10), "
+                + "PRIMARY KEY (ReservationID, EquipmentID), "
+                + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID), "
+                + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID)"
                 + ")",
                 // Create BorrowingRecords table
                 "CREATE TABLE IF NOT EXISTS BorrowingRecords ("
@@ -299,7 +304,18 @@ public class AsmDB {
 
     public List<EquipmentBean> fetchGroupedEquipment() throws SQLException, IOException {
         List<EquipmentBean> groupedEquipmentList = new ArrayList<>();
-        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity FROM Equipment GROUP BY Name, Available, CampusName, EquipmentCondition";
+        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity "
+                + "FROM Equipment "
+                + "WHERE EquipmentCondition != 'Out of Service' "
+                + "GROUP BY Name, Available, CampusName, EquipmentCondition "
+                + "ORDER BY Available ASC, "
+                + "         CASE "
+                + "             WHEN EquipmentCondition = 'New' THEN 1 "
+                + "             WHEN EquipmentCondition = 'Good' THEN 2 "
+                + "             WHEN EquipmentCondition = 'Fair' THEN 3 "
+                + "             WHEN EquipmentCondition = 'Poor' THEN 4 "
+                + "         END";
+
         try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {

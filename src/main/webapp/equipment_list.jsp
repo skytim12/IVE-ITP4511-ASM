@@ -16,12 +16,14 @@
         <h1>Equipment List</h1>
         <nav>
             <ul>
-               
+
                 <c:if test="${not empty dashboardURL}">
                     <li><a href="${dashboardURL}">DashBoard</a></li>
                     </c:if>
                 <li><a href="/EquipmentController">All Equipment</a></li>
-                <li><a href="borrowing_records.jsp">My Reservations</a></li>
+                <li><a href="borrowing_records.jsp">My Reservations Record</a></li>
+                <li><a href="#">My WishList</a></li>
+                <li><a href="#">Notification</a></li>
                 <li><a href="profile.jsp">Profile</a></li>
             </ul>
         </nav>

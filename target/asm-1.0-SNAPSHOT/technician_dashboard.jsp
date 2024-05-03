@@ -14,7 +14,7 @@
         <h1>Welcome, Technician!</h1>
         <nav>
             <ul>
-                <li><a href="equipmentManagement.jsp">Manage Equipment</a></li>
+                <li><a href="/EquipmentController">Manage Equipment</a></li>
                 <li><a href="repairLogs.jsp">Repair Logs</a></li>
             </ul>
         </nav>

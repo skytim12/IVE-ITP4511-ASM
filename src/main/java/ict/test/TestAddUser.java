@@ -23,7 +23,7 @@ public class TestAddUser {
         AsmDB asmDB = new AsmDB(url, username, password);
 
         // Adding a GeneralUser
-        UserBean generalUser = createUser("220014863", "Soman", "123456", "GeneralUser", "Soaman Tsang", "Sha Tin");
+        UserBean generalUser = createUser("220014863", "Soman", "123456", "GeneralUser", "Soman Tsang", "Sha Tin");
         addUser(asmDB, generalUser);
 
         // Adding a Technician
