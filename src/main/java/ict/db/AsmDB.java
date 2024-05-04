@@ -5,7 +5,10 @@
 package ict.db;
 
 import ict.bean.*;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -72,9 +76,11 @@ public class AsmDB {
                 + "Description TEXT, "
                 + "Available ENUM('Yes', 'No') DEFAULT 'Yes', "
                 + "CampusName ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
+                + "CurrentCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi') NOT NULL, " // Added current campus
                 + "EquipmentCondition ENUM('New', 'Good', 'Fair', 'Poor', 'Out of Service') NOT NULL DEFAULT 'Good', "
-                + "ExclusiveForStaff ENUM('Yes', 'No') DEFAULT 'No', " // New column
-                + "FOREIGN KEY (CampusName) REFERENCES Campus(CampusName)"
+                + "ExclusiveForStaff ENUM('Yes', 'No') DEFAULT 'No', "
+                + "FOREIGN KEY (CampusName) REFERENCES Campus(CampusName), "
+                + "FOREIGN KEY (CurrentCampus) REFERENCES Campus(CampusName)"
                 + ")",
                 // Create Reservation table
                 "CREATE TABLE IF NOT EXISTS Reservation ("
@@ -82,8 +88,10 @@ public class AsmDB {
                 + "UserID VARCHAR(20), "
                 + "ReservedFrom DATE, "
                 + "ReservedTo DATE, "
-                + "Status ENUM('Reserved', 'Borrowed', 'Returned', 'Cancelled') DEFAULT 'Reserved', "
-                + "FOREIGN KEY (UserID) REFERENCES Users(UserID)"
+                + "DestinationCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), " // Added destination campus
+                + "Status ENUM('Reserved', 'Borrowed', 'Returned', 'Success', 'Cancelled') DEFAULT 'Reserved', "
+                + "FOREIGN KEY (UserID) REFERENCES Users(UserID), "
+                + "FOREIGN KEY (DestinationCampus) REFERENCES Campus(CampusName)"
                 + ")",
                 // Create ReservationEquipment table
                 "CREATE TABLE IF NOT EXISTS ReservationEquipment ("
@@ -99,6 +107,7 @@ public class AsmDB {
                 + "ReservationID INT, "
                 + "BorrowDate DATE, "
                 + "ReturnDate DATE, "
+                + "Status ENUM('waiting', 'success', 'returned', 'fail') DEFAULT 'waiting', "
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)"
                 + ")",
                 // Create Wishlist table
@@ -108,7 +117,8 @@ public class AsmDB {
                 + "EquipmentID VARCHAR(10), "
                 + "DateAdded DATE, "
                 + "FOREIGN KEY (UserID) REFERENCES Users(UserID), "
-                + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID)"
+                + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID), "
+                + "CONSTRAINT UC_UserEquipment UNIQUE (UserID, EquipmentID)"
                 + ")",
                 // Create Delivery table
                 "CREATE TABLE IF NOT EXISTS Delivery ("
@@ -155,62 +165,26 @@ public class AsmDB {
         }
     }
 
-    public boolean isValidUser(String username, String password) throws SQLException, IOException {
-        Statement stmnt = null;
-        Connection cnnct = null;
-        PreparedStatement pstmt = null;
-        String query = "SELECT COUNT(*) FROM Users WHERE Username = ? AND Password = ?";
-        try {
-            cnnct = getConnection();
-            stmnt = cnnct.createStatement();
-            pstmt = cnnct.prepareStatement(query);
+    public UserBean authenticateUser(String username, String password) throws SQLException, IOException {
+        String sql = "SELECT * FROM Users WHERE Username = ? AND Password = SHA2(?, 256)";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+            pstmt.setString(2, password); 
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                UserBean user = new UserBean();
+                user.setUserID(rs.getString("UserID"));
+                user.setUsername(rs.getString("Username"));
+                user.setFullName(rs.getString("FullName"));
+                user.setRole(rs.getString("Role"));
+                return user;
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
-        return false;
+        return null; 
     }
 
-    public UserBean getUser(String username, String password) throws SQLException {
-        String query = "SELECT UserID, Username, Password, Role, FullName, CampusName FROM Users WHERE Username = ? AND Password = ?";
-        Statement stmnt = null;
-        Connection cnnct = null;
-        PreparedStatement pstmt = null;
-        try {
-            cnnct = getConnection();
-            stmnt = cnnct.createStatement();
-            pstmt = cnnct.prepareStatement(query);
-
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    UserBean user = new UserBean();
-                    user.setUserID(rs.getString("UserID"));
-                    user.setUsername(rs.getString("Username"));
-                    user.setPassword(rs.getString("Password"));
-                    user.setRole(rs.getString("Role"));
-                    user.setFullName(rs.getString("FullName"));
-                    user.setCampusName(rs.getString("CampusName"));
-                    return user;
-                }
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
 
     public boolean addUser(UserBean user) throws SQLException, IOException {
         String query = "INSERT INTO Users (UserID, Username, Password, Role, FullName, CampusName) VALUES (?, ?, ?, ?, ?, ?)";
@@ -252,7 +226,7 @@ public class AsmDB {
     }
 
     public boolean addEquipment(EquipmentBean equipment) throws SQLException, IOException {
-        String query = "INSERT INTO Equipment (EquipmentID, Name, Description, Available, CampusName, EquipmentCondition, ExclusiveForStaff) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Equipment (EquipmentID, Name, Description, Available, CampusName, CurrentCampus, EquipmentCondition, ExclusiveForStaff) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         Connection cnnct = null;
         PreparedStatement pstmt = null;
         try {
@@ -264,8 +238,9 @@ public class AsmDB {
             pstmt.setString(3, equipment.getDescription());
             pstmt.setString(4, equipment.getAvailable());
             pstmt.setString(5, equipment.getCampusName());
-            pstmt.setString(6, equipment.getCondition());
-            pstmt.setString(7, equipment.getExclusiveForStaff());
+            pstmt.setString(6, equipment.getCurrentCampus()); // Handle current campus
+            pstmt.setString(7, equipment.getCondition());
+            pstmt.setString(8, equipment.getExclusiveForStaff());
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -281,7 +256,7 @@ public class AsmDB {
 
     public List<EquipmentBean> fetchEquipmentList() throws SQLException, IOException {
         List<EquipmentBean> equipmentList = new ArrayList<>();
-        String query = "SELECT EquipmentID, Name, Description, Available, CampusName, EquipmentCondition FROM Equipment";
+        String query = "SELECT EquipmentID, Name, Description, Available, CampusName, CurrentCampus, EquipmentCondition FROM Equipment";
         try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
@@ -291,22 +266,53 @@ public class AsmDB {
                 equipment.setDescription(rs.getString("Description"));
                 equipment.setAvailable(rs.getString("Available"));
                 equipment.setCampusName(rs.getString("CampusName"));
+                equipment.setCurrentCampus(rs.getString("CurrentCampus")); // Setting current campus
                 equipment.setCondition(rs.getString("EquipmentCondition"));
                 equipmentList.add(equipment);
             }
         } catch (SQLException ex) {
             System.out.println("SQL Error: " + ex.getMessage());
             ex.printStackTrace();
-
         }
         return equipmentList;
     }
 
     public List<EquipmentBean> fetchGroupedEquipment() throws SQLException, IOException {
         List<EquipmentBean> groupedEquipmentList = new ArrayList<>();
-        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity "
+        String query = "SELECT GROUP_CONCAT(EquipmentID) AS EquipmentIDs, Name, Description, Available, CampusName, CurrentCampus, EquipmentCondition, ExclusiveForStaff, COUNT(*) AS TotalQuantity "
                 + "FROM Equipment "
                 + "WHERE EquipmentCondition != 'Out of Service' "
+                + "GROUP BY Name, Available, CampusName, CurrentCampus, EquipmentCondition, ExclusiveForStaff "
+                + "ORDER BY Available ASC, ExclusiveForStaff ASC, "
+                + "         CASE "
+                + "             WHEN EquipmentCondition = 'New' THEN 1 "
+                + "             WHEN EquipmentCondition = 'Good' THEN 2 "
+                + "             WHEN EquipmentCondition = 'Fair' THEN 3 "
+                + "             WHEN EquipmentCondition = 'Poor' THEN 4 "
+                + "         END";
+        try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                EquipmentBean equipment = new EquipmentBean();
+                equipment.setEquipmentIDs(rs.getString("EquipmentIDs")); // Store concatenated IDs
+                equipment.setName(rs.getString("Name"));
+                equipment.setDescription(rs.getString("Description"));
+                equipment.setAvailable(rs.getString("Available"));
+                equipment.setCampusName(rs.getString("CampusName"));
+                equipment.setCurrentCampus(rs.getString("CurrentCampus"));
+                equipment.setCondition(rs.getString("EquipmentCondition"));
+                equipment.setTotalQuantity(rs.getInt("TotalQuantity"));
+                equipment.setExclusiveForStaff(rs.getString("ExclusiveForStaff"));
+                groupedEquipmentList.add(equipment);
+            }
+        }
+        return groupedEquipmentList;
+    }
+
+    public List<EquipmentBean> fetchGroupedEquipmentExcludeForStaff() throws SQLException, IOException {
+        List<EquipmentBean> equipmentList = new ArrayList<>();
+        String query = "SELECT GROUP_CONCAT(EquipmentID) AS EquipmentIDs, Name, Description, Available, CampusName,CurrentCampus, EquipmentCondition,ExclusiveForStaff, COUNT(*) AS TotalQuantity "
+                + "FROM Equipment "
+                + "WHERE EquipmentCondition != 'Out of Service' AND ExclusiveForStaff = 'No' "
                 + "GROUP BY Name, Available, CampusName, EquipmentCondition "
                 + "ORDER BY Available ASC, "
                 + "         CASE "
@@ -317,22 +323,21 @@ public class AsmDB {
                 + "         END";
 
         try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
-
             while (rs.next()) {
                 EquipmentBean equipment = new EquipmentBean();
+                equipment.setEquipmentIDs(rs.getString("EquipmentIDs"));
                 equipment.setName(rs.getString("Name"));
                 equipment.setDescription(rs.getString("Description"));
                 equipment.setAvailable(rs.getString("Available"));
                 equipment.setCampusName(rs.getString("CampusName"));
+                equipment.setCurrentCampus(rs.getString("CurrentCampus"));
                 equipment.setCondition(rs.getString("EquipmentCondition"));
                 equipment.setTotalQuantity(rs.getInt("TotalQuantity"));
-                groupedEquipmentList.add(equipment);
+                equipment.setExclusiveForStaff(rs.getString("ExclusiveForStaff"));
+                equipmentList.add(equipment);
             }
-        } catch (SQLException ex) {
-            System.out.println("SQL Error: " + ex.getMessage());
-            ex.printStackTrace();
         }
-        return groupedEquipmentList;
+        return equipmentList;
     }
 
     public String generateUniqueEquipmentID() throws SQLException, IOException {
@@ -353,10 +358,11 @@ public class AsmDB {
 
     public List<EquipmentBean> UserfetchReservableEquipmentList() throws SQLException, IOException {
         List<EquipmentBean> reservableEquipmentList = new ArrayList<>();
-        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, COUNT(*) AS TotalQuantity "
+        String query = "SELECT Name, Description, Available, CampusName, EquipmentCondition, CurrentCampus, COUNT(*) AS TotalQuantity "
                 + "FROM Equipment "
                 + "WHERE Available = 'Yes' AND EquipmentCondition != 'Out of Service' AND ExclusiveForStaff = 'No' "
-                + "GROUP BY Name, Description, Available, CampusName, EquipmentCondition";
+                + "GROUP BY Name, Description, Available, CampusName, EquipmentCondition, CurrentCampus "
+                + "ORDER BY Name, Available, CampusName";
         try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
@@ -366,6 +372,7 @@ public class AsmDB {
                 equipment.setAvailable(rs.getString("Available"));
                 equipment.setCampusName(rs.getString("CampusName"));
                 equipment.setCondition(rs.getString("EquipmentCondition"));
+                equipment.setCurrentCampus(rs.getString("CurrentCampus"));  // Set the current campus
                 equipment.setTotalQuantity(rs.getInt("TotalQuantity"));
                 reservableEquipmentList.add(equipment);
             }
@@ -374,6 +381,248 @@ public class AsmDB {
             ex.printStackTrace();
         }
         return reservableEquipmentList;
+    }
+
+    public boolean addWishlistItem(String userID, String equipmentID) throws SQLException, IOException {
+        String sql = "INSERT INTO Wishlist (UserID, EquipmentID, DateAdded) VALUES (?, ?, ?)";
+        try (Connection cnnct = getConnection(); PreparedStatement pstmt = cnnct.prepareStatement(sql)) {
+
+            pstmt.setString(1, userID);
+            pstmt.setString(2, equipmentID);
+            pstmt.setDate(3, new java.sql.Date(new Date().getTime()));
+
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Exception: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /* public boolean addReservation(String userID, Date reservedFrom, Date reservedTo, String destinationCampus) throws SQLException, IOException {
+        String sql = "INSERT INTO Reservation (UserID, ReservedFrom, ReservedTo, DestinationCampus) VALUES (?, ?, ?, ?)";
+        try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, userID);
+            pstmt.setDate(2, new java.sql.Date(reservedFrom.getTime()));
+            pstmt.setDate(3, new java.sql.Date(reservedTo.getTime()));
+            pstmt.setString(4, destinationCampus);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }*/
+    public int addReservationAndGetId(String userID, Date reservedFrom, Date reservedTo, String destinationCampus) throws SQLException, IOException {
+        String sql = "INSERT INTO Reservation (UserID, ReservedFrom, ReservedTo, DestinationCampus) VALUES (?, ?, ?, ?)";
+        int reservationId = 0;
+        try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, userID);
+            pstmt.setDate(2, new java.sql.Date(reservedFrom.getTime()));
+            pstmt.setDate(3, new java.sql.Date(reservedTo.getTime()));
+            pstmt.setString(4, destinationCampus);
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        reservationId = rs.getInt(1);
+                    }
+                }
+            }
+            return reservationId;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return 0;
+        }
+    }
+
+    public List<String> fetchEquipmentIDsForReservation(String equipmentType, int quantity, String campusName) throws SQLException, IOException {
+        List<String> equipmentIDs = new ArrayList<>();
+        String query = "SELECT EquipmentID FROM Equipment "
+                + "WHERE Name = ? AND Available = 'Yes' AND CampusName = ? "
+                + "ORDER BY EquipmentID ASC LIMIT ?";
+
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, equipmentType);
+            pstmt.setString(2, campusName);
+            pstmt.setInt(3, quantity);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    equipmentIDs.add(rs.getString("EquipmentID"));
+                }
+            }
+        }
+
+        return equipmentIDs;
+    }
+
+    public boolean addReservationEquipment(int reservationID, String equipmentID) throws SQLException, IOException {
+        String query = "INSERT INTO ReservationEquipment (ReservationID, EquipmentID) VALUES (?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, reservationID);
+            pstmt.setString(2, equipmentID);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public boolean addBorrowingRecord(int reservationID, Date borrowDate) throws SQLException, IOException {
+        String sql = "INSERT INTO BorrowingRecords (ReservationID, BorrowDate, Status) VALUES (?, ?, 'waiting')";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, reservationID);
+            pstmt.setDate(2, new java.sql.Date(borrowDate.getTime()));
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public boolean setEquipmentUnavailable(String equipmentID) throws SQLException, IOException {
+        String query = "UPDATE Equipment SET Available = 'No' WHERE EquipmentID = ?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, equipmentID);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public List<BorrowingRecordsBean> fetchBorrowingRecords(String userID) throws SQLException, IOException {
+        List<BorrowingRecordsBean> records = new ArrayList<>();
+        String sql = "SELECT br.RecordID, br.BorrowDate, br.ReturnDate, br.Status, "
+                + "GROUP_CONCAT(DISTINCT e.Name SEPARATOR '&') AS EquipmentNames, COUNT(re.EquipmentID) AS TotalQuantity "
+                + "FROM BorrowingRecords br "
+                + "JOIN Reservation r ON br.ReservationID = r.ReservationID "
+                + "JOIN ReservationEquipment re ON r.ReservationID = re.ReservationID "
+                + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
+                + "WHERE r.UserID = ? "
+                + "GROUP BY br.RecordID, br.BorrowDate, br.ReturnDate, br.Status";
+
+        try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                BorrowingRecordsBean record = new BorrowingRecordsBean();
+                record.setRecordID(rs.getInt("RecordID"));
+                record.setBorrowDate(rs.getDate("BorrowDate"));
+                record.setReturnDate(rs.getDate("ReturnDate"));
+                record.setStatus(rs.getString("Status"));
+                record.setEquipmentNames(rs.getString("EquipmentNames"));
+                record.setTotalQuantity(rs.getInt("TotalQuantity"));
+                records.add(record);
+            }
+        }
+        return records;
+    }
+
+    public void returnEquipment(HttpServletRequest request) throws SQLException, IOException {
+        // Extract the record ID from the request
+        int recordID = Integer.parseInt(request.getParameter("recordID"));
+        Connection conn = null;
+
+        try {
+            conn = this.getConnection();
+            conn.setAutoCommit(false);  // Start transaction
+
+            // Update the ReturnDate in the BorrowingRecords table
+            String updateBorrowingRecordsSql = "UPDATE BorrowingRecords SET ReturnDate = CURRENT_DATE(), Status = 'returned' WHERE RecordID = ? AND ReturnDate IS NULL";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateBorrowingRecordsSql)) {
+                pstmt.setInt(1, recordID);
+                int updatedRows = pstmt.executeUpdate();
+                if (updatedRows == 0) {
+                    throw new SQLException("No records updated, check if the record ID is correct and the equipment hasn't been returned yet.");
+                }
+            }
+
+            // Update the Status in the Reservation table
+            String updateReservationSql = "UPDATE Reservation JOIN BorrowingRecords ON Reservation.ReservationID = BorrowingRecords.ReservationID "
+                    + "SET Reservation.Status = 'Returned' WHERE BorrowingRecords.RecordID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateReservationSql)) {
+                pstmt.setInt(1, recordID);
+                int updatedRows = pstmt.executeUpdate();
+                if (updatedRows == 0) {
+                    throw new SQLException("Failed to update reservation status. No reservation found linked to this borrowing record.");
+                }
+            }
+
+            conn.commit();
+        } catch (SQLException ex) {
+            if (conn != null) {
+                conn.rollback();
+            }
+            throw ex;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public List<EquipmentBean> fetchWishlist(String userID) throws SQLException, IOException {
+        List<EquipmentBean> wishlist = new ArrayList<>();
+        String query = "SELECT e.EquipmentID, e.Name, e.Description "
+                + "FROM Wishlist w JOIN Equipment e ON w.EquipmentID = e.EquipmentID "
+                + "WHERE w.UserID = ?";
+        try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, userID);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    EquipmentBean equipment = new EquipmentBean();
+                    equipment.setEquipmentID(rs.getString("EquipmentID"));
+                    equipment.setName(rs.getString("Name"));
+                    equipment.setDescription(rs.getString("Description"));
+                    wishlist.add(equipment);
+                }
+            }
+        }
+        return wishlist;
+    }
+
+    public boolean removeFromWishlist(String userID, String equipmentID) throws SQLException, IOException {
+        String query = "DELETE FROM Wishlist WHERE UserID = ? AND EquipmentID = ?";
+        try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, userID);
+            pstmt.setString(2, equipmentID);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public void updateUserProfile(String userID, String fullName, String newPassword) throws SQLException, IOException {
+        String sql = "UPDATE Users SET FullName = ?, Password = ? WHERE UserID = ?";
+        try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, hashPassword(newPassword)); // Hash the password before storing it
+            pstmt.setString(3, userID);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating user failed, no rows affected.");
+            }
+        } catch (SQLException e) {
+            throw e;
+        }
+    }
+
+  
+    public String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+            return bytesToHex(hashedBytes);
+        } catch (NoSuchAlgorithmException e) {
+            // Ideally handle this better or use a more robust hashing mechanism
+            throw new RuntimeException("Failed to hash password", e);
+        }
+    }
+
+ 
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
 }

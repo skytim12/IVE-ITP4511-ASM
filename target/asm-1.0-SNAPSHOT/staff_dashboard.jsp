@@ -14,8 +14,12 @@
         <h1>Welcome, Staff!</h1>
         <nav>
             <ul>
-                <li><a href="reservationManagement.jsp">Manage Reservations</a></li>
-                <li><a href="checkEquipmentAvailability.jsp">Check Equipment Availability</a></li>
+                <li><a href="/UserDashboard">DashBoard</a></li>
+                <li><a href="/EquipmentController">Reservation</a></li>
+                <li><a href="borrowing_records.jsp">My Reservations Record</a></li>
+                <li><a href="/WishlistController">My WishList</a></li>
+                <li><a href="#">Notification</a></li>
+                <li><a href="profile.jsp">Profile</a></li>
             </ul>
         </nav>
         <footer>

@@ -18,10 +18,10 @@
             <ul>
                 <li><a href="/UserDashboard">DashBoard</a></li>
                 <li><a href="/EquipmentController">Reservation</a></li>
-                <li><a href="borrowing_records.jsp">My Reservations Record</a></li>
-                <li><a href="#">My WishList</a></li>
+                <li><a href="/BorrowingController">My Reservations Record</a></li>
+                <li><a href="/WishlistController">My WishList</a></li>
                 <li><a href="#">Notification</a></li>
-                <li><a href="profile.jsp">Profile</a></li>
+                <li><a href="/ProfileController">Profile</a></li>
             </ul>
         </nav>
 
@@ -35,6 +35,7 @@
                         <th>Condition</th>
                         <th>Description</th> 
                         <th>Total</th>
+                        <th>Current Campus</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,6 +47,7 @@
                             <td>${equipment.condition}</td>
                             <td>${equipment.description}</td>
                             <td>${equipment.totalQuantity}</td>
+                            <td>${equipment.currentCampus}</td>
                         </tr>
                     </c:forEach>
                 </tbody>

@@ -11,6 +11,7 @@ package ict.bean;
 public class EquipmentBean {
 
     private String equipmentID;
+    private String equipmentIDs;
     private String name;
     private String description;
     private String available;
@@ -18,6 +19,7 @@ public class EquipmentBean {
     private String condition;
     private int TotalQuantity;
     private String exclusiveForStaff;
+    private String currentCampus;
 
     public EquipmentBean() {
     }
@@ -37,6 +39,14 @@ public class EquipmentBean {
 
     public void setEquipmentID(String equipmentID) {
         this.equipmentID = equipmentID;
+    }
+
+    public String getEquipmentIDs() {
+        return equipmentIDs;
+    }
+
+    public void setEquipmentIDs(String equipmentIDs) {
+        this.equipmentIDs = equipmentIDs;
     }
 
     public String getName() {
@@ -69,6 +79,14 @@ public class EquipmentBean {
 
     public void setCampusName(String CampusName) {
         this.CampusName = CampusName;
+    }
+
+    public String getCurrentCampus() {
+        return currentCampus;
+    }
+
+    public void setCurrentCampus(String currentCampus) {
+        this.currentCampus = currentCampus;
     }
 
     public String getCondition() {

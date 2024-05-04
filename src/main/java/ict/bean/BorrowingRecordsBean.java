@@ -1,32 +1,33 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ict.bean;
 
+import java.sql.Date;
+
 /**
- *
- * @author Soman
+ * Bean class for handling borrowing records.
  */
 public class BorrowingRecordsBean {
 
     private int recordID;
     private int reservationID;
-    private java.sql.Date borrowDate;
-    private java.sql.Date returnDate;
+    private Date borrowDate;
+    private Date returnDate;
+    private String status;
+    private String equipmentNames;
+    private int totalQuantity;
 
-    
     public BorrowingRecordsBean() {
     }
 
-    public BorrowingRecordsBean(int recordID, int reservationID, java.sql.Date borrowDate, java.sql.Date returnDate) {
+    public BorrowingRecordsBean(int recordID, int reservationID, Date borrowDate, Date returnDate, String status) {
         this.recordID = recordID;
         this.reservationID = reservationID;
         this.borrowDate = borrowDate;
         this.returnDate = returnDate;
+        this.status = status;
+
     }
 
-    
+    // Getters and Setters
     public int getRecordID() {
         return recordID;
     }
@@ -43,19 +44,43 @@ public class BorrowingRecordsBean {
         this.reservationID = reservationID;
     }
 
-    public java.sql.Date getBorrowDate() {
+    public Date getBorrowDate() {
         return borrowDate;
     }
 
-    public void setBorrowDate(java.sql.Date borrowDate) {
+    public void setBorrowDate(Date borrowDate) {
         this.borrowDate = borrowDate;
     }
 
-    public java.sql.Date getReturnDate() {
+    public Date getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(java.sql.Date returnDate) {
+    public void setReturnDate(Date returnDate) {
         this.returnDate = returnDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getEquipmentNames() {
+        return equipmentNames;
+    }
+
+    public void setEquipmentNames(String equipmentNames) {
+        this.equipmentNames = equipmentNames;
+    }
+
+    public int getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(int totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 }

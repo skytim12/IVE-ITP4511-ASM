@@ -16,7 +16,7 @@ public class TestAddEquipment {
         try {
             String[] equipmentTypes = {"Laptop", "Desktop", "Printer", "Projector", "Scanner"};
 
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < 100; i++) {
                 String equipmentID = asmDB.generateUniqueEquipmentID();
 
                 EquipmentBean equipment = new EquipmentBean();
@@ -46,19 +46,21 @@ public class TestAddEquipment {
                 }
                 equipment.setDescription(description);
 
-                
-                int randomAvailable = (int) (Math.random() * 2); 
+                int randomAvailable = (int) (Math.random() * 2);
                 equipment.setAvailable(randomAvailable == 1 ? "Yes" : "No");
 
                 String[] campusNames = {"Chai Wan", "Lee Wai Lee", "Sha Tin", "Tuen Mun", "Tsing Yi"};
                 int campusIndex = (int) (Math.random() * campusNames.length);
                 equipment.setCampusName(campusNames[campusIndex]);
 
+                // Use the same campus for current location as a start
+                equipment.setCurrentCampus(campusNames[campusIndex]);
+
                 String[] conditions = {"New", "Good", "Fair", "Poor", "Out of Service"};
                 int conditionIndex = (int) (Math.random() * conditions.length);
                 equipment.setCondition(conditions[conditionIndex]);
-                
-                int randomExclusive = (int) (Math.random() * 2); 
+
+                int randomExclusive = (int) (Math.random() * 2);
                 equipment.setExclusiveForStaff(randomExclusive == 1 ? "Yes" : "No");
 
                 boolean success = asmDB.addEquipment(equipment);
@@ -73,6 +75,5 @@ public class TestAddEquipment {
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }
-
     }
 }
