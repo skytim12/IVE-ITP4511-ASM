@@ -35,6 +35,16 @@ public class ArrangeDeliveryController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        if ("addDelivery".equals(action)) {
+            try {
+                addDelivery(request);
+                request.setAttribute("message", "Delivery arranged successfully.");
+            } catch (SQLException ex) {
+                request.setAttribute("errorMessage", "Error arranging delivery: " + ex.getMessage());
+            }
+        }
         processRequest(request, response);
     }
 
@@ -46,16 +56,6 @@ public class ArrangeDeliveryController extends HttpServlet {
             request.setAttribute("errorMessage", "You must be logged in to access this page.");
             request.getRequestDispatcher("/login_page.jsp").forward(request, response);
             return;
-        }
-        String action = request.getParameter("action");
-
-        if ("addDelivery".equals(action)) {
-            try {
-                addDelivery(request);
-                request.setAttribute("message", "Delivery arranged successfully.");
-            } catch (SQLException ex) {
-                request.setAttribute("errorMessage", "Error arranging delivery: " + ex.getMessage());
-            }
         }
 
         try {
@@ -69,13 +69,13 @@ public class ArrangeDeliveryController extends HttpServlet {
     }
 
     private void addDelivery(HttpServletRequest request) throws SQLException, IOException {
-        
+        HttpSession session = request.getSession();
+        UserBean user = (UserBean) session.getAttribute("userBean");
         int reservationID = Integer.parseInt(request.getParameter("reservationID"));
-        String fromCampus = request.getParameter("fromCampus");
+        String fromCampus = user.getCampusName();
         String toCampus = request.getParameter("toCampus");
         String courierID = request.getParameter("courierID");
 
-        
         db.addDelivery(reservationID, fromCampus, toCampus, courierID, "Scheduled");
     }
 

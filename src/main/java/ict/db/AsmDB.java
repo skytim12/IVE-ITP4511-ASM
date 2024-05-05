@@ -786,12 +786,14 @@ public class AsmDB {
 
     public List<ReservationBean> fetchReservationsForDelivery(String userCampus) throws SQLException, IOException {
         List<ReservationBean> reservations = new ArrayList<>();
-        String sql = "SELECT r.ReservationID, r.UserID, u.FullName AS userName, r.ReservedFrom, r.ReservedTo, r.Status "
+        String sql = "SELECT r.ReservationID, r.UserID,r.DestinationCampus, u.FullName AS userName, r.ReservedFrom, r.ReservedTo, r.Status "
                 + "FROM Reservation r "
                 + "JOIN Users u ON r.UserID = u.UserID "
                 + "JOIN BorrowingRecords br ON r.ReservationID = br.ReservationID "
+                + "JOIN ReservationEquipment re ON r.ReservationID = re.ReservationID "
                 + "LEFT JOIN Delivery d ON r.ReservationID = d.ReservationID "
-                + "WHERE br.Status = 'success' AND d.DeliveryID IS NULL "
+                + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
+                + "WHERE e.CampusName = ? AND br.Status = 'success' AND d.DeliveryID IS NULL "
                 + "ORDER BY r.ReservedFrom DESC";
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -804,6 +806,7 @@ public class AsmDB {
                     reservation.setUserName(rs.getString("userName"));
                     reservation.setReservedFrom(rs.getDate("ReservedFrom"));
                     reservation.setReservedTo(rs.getDate("ReservedTo"));
+                    reservation.setToCampus(rs.getString("DestinationCampus"));
                     reservation.setStatus(rs.getString("Status"));
                     reservation.setEquipmentList(fetchEquipmentListForReservation(rs.getInt("ReservationID"), conn));
                     reservations.add(reservation);
@@ -871,22 +874,21 @@ public class AsmDB {
             pstmt.executeUpdate();
         }
     }
-    
+
     public boolean addDelivery(int reservationID, String fromCampus, String toCampus, String courierID, String status) throws SQLException, IOException {
-    String sql = "INSERT INTO Delivery (ReservationID, FromCampus, ToCampus, CourierID, Status) VALUES (?, ?, ?, ?, ?)";
-    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, reservationID);
-        pstmt.setString(2, fromCampus);
-        pstmt.setString(3, toCampus);
-        pstmt.setString(4, courierID);
-        pstmt.setString(5, status);
+        String sql = "INSERT INTO Delivery (ReservationID, FromCampus, ToCampus, CourierID, Status) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, reservationID);
+            pstmt.setString(2, fromCampus);
+            pstmt.setString(3, toCampus);
+            pstmt.setString(4, courierID);
+            pstmt.setString(5, status);
 
-        int affectedRows = pstmt.executeUpdate();
-        return affectedRows > 0;
-    } catch (SQLException e) {
-        throw new SQLException("Error adding delivery: " + e.getMessage(), e);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            throw new SQLException("Error adding delivery: " + e.getMessage(), e);
+        }
     }
-}
-
 
 }

@@ -2,16 +2,16 @@ package ict.bean;
 
 import java.util.List;
 
-
 public class ReservationBean {
 
     private int reservationID;
     private String userID;
-    private String userName;  
+    private String userName;
     private java.sql.Date reservedFrom;
     private java.sql.Date reservedTo;
     private String status;
-    private List<EquipmentBean> equipmentList;  
+    private List<EquipmentBean> equipmentList;
+    private String toCampus;
 
     public ReservationBean() {
     }
@@ -43,6 +43,14 @@ public class ReservationBean {
 
     public String getUserName() {
         return userName;
+    }
+
+    public void setToCampus(String toCampus) {
+        this.toCampus = toCampus;
+    }
+
+    public String getToCampus() {
+        return toCampus;
     }
 
     public void setUserName(String userName) {

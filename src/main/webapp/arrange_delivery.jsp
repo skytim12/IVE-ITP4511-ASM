@@ -28,7 +28,6 @@
             <thead>
                 <tr>
                     <th>Reservation ID</th>
-                    <th>User ID</th>
                     <th>User Name</th>
                     <th>Reserved From</th>
                     <th>Reserved To</th>
@@ -40,13 +39,12 @@
                 <c:forEach var="reservation" items="${reservations}" varStatus="status">
                     <tr onclick="toggleDetails('details${status.index}')">
                         <td>${reservation.reservationID}</td>
-                        <td>${reservation.userID}</td>
                         <td>${reservation.userName}</td>
                         <td>${reservation.reservedFrom}</td>
                         <td>${reservation.reservedTo}</td>
                         <td>${reservation.status}</td>
                         <td>
-                            <button type="button" onclick="arrangeDelivery('${reservation.reservationID}', '${reservation.destinationCampus}', '${reservation.userID}');">Arrange Delivery</button>
+                            <button type="button" onclick="arrangeDelivery('${reservation.reservationID}', '${reservation.toCampus}', '${reservation.userID}');">Arrange Delivery</button>
                         </td>
                     </tr>
                     <tr id="details${status.index}" style="display:none;">
@@ -94,40 +92,67 @@
                     <input type="text" id="modalReservationID" name="reservationID" readonly><br>
                     <label for="toCampus">To Campus:</label>
                     <input type="text" id="toCampus" name="toCampus" readonly><br>
-                    <label for="courier">Courier (User ID):</label>
-                    <input type="text" id="courier" name="courierID" readonly><br>
-                    <input type="hidden" name="status" value="Scheduled">
+                    <label for="status">Status:</label>
+                    <input type="text" id="status" name="status" value="Scheduled" readonly><br>
+                    <input type="hidden" id="courier" name="courierID" readonly><br>
                     <input type="submit" value="Confirm Delivery">
                 </form>
             </div>
         </div>
 
         <script>
-            // Function to open the Arrange Delivery Modal and set the values
+
             function arrangeDelivery(reservationID, toCampus, courierID) {
-                // Setting up the form fields in the modal with the respective values
+
                 document.getElementById('modalReservationID').value = reservationID;
                 document.getElementById('toCampus').value = toCampus;
                 document.getElementById('courier').value = courierID;
 
-                // Display the modal
+
                 var modal = document.getElementById('arrangeDeliveryModal');
                 modal.style.display = 'block';
 
-                // Function to close the modal if the close span is clicked
+
                 modal.querySelector('.close').onclick = function () {
                     modal.style.display = "none";
                 }
             }
 
-            // Close the modal on click outside
+
             window.onclick = function (event) {
                 var modal = document.getElementById('arrangeDeliveryModal');
                 if (event.target == modal) {
                     modal.style.display = "none";
                 }
             }
+
+            function toggleDetails(rowId) {
+                var detailsRow = document.getElementById(rowId);
+                if (detailsRow.style.display === 'none') {
+                    detailsRow.style.display = 'table-row';
+                } else {
+                    detailsRow.style.display = 'none';
+                }
+            }
+
+            function showSuccessMessage(message) {
+                alert(message);
+            }
+
+            function showErrorMessage(message) {
+                alert(message);
+            }
+
+            <% if (request.getAttribute("successMessage") != null) { %>
+            showSuccessMessage("<%= request.getAttribute("successMessage") %>");
+            <% } %>
+
+            <% if (request.getAttribute("errorMessage") != null) { %>
+            showErrorMessage("<%= request.getAttribute("errorMessage") %>");
+            <% } %>
         </script>
 
     </body>
 </html>
+
+
