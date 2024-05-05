@@ -14,8 +14,8 @@
         <h1>Welcome, Courier!</h1>
         <nav>
             <ul>
-                <li><a href="deliverySchedule.jsp">View Delivery Schedule</a></li>
-                <li><a href="updateDeliveryStatus.jsp">Update Delivery Status</a></li>
+                <li><a href="/DeliveryController">View Delivery Schedule</a></li>
+                <li><a href="/UpdateDeliveryStatusController">Update Delivery Status</a></li>
             </ul>
         </nav>
         <footer>

@@ -11,16 +11,20 @@ package ict.bean;
 public class DamageReportsBean {
 
     private int reportID;
-    private int equipmentID;
+    private String equipmentID;
     private String reportedBy;
     private java.sql.Timestamp reportDate;
     private String description;
     private String status;
+    private String reportedByName;
+    private String equipmentName;
+    private String available;
+    private String condition;
 
     public DamageReportsBean() {
     }
 
-    public DamageReportsBean(int reportID, int equipmentID, String reportedBy, java.sql.Timestamp reportDate, String description, String status) {
+    public DamageReportsBean(int reportID, String equipmentID, String reportedBy, java.sql.Timestamp reportDate, String description, String status) {
         this.reportID = reportID;
         this.equipmentID = equipmentID;
         this.reportedBy = reportedBy;
@@ -37,11 +41,11 @@ public class DamageReportsBean {
         this.reportID = reportID;
     }
 
-    public int getEquipmentID() {
+    public String getEquipmentID() {
         return equipmentID;
     }
 
-    public void setEquipmentID(int equipmentID) {
+    public void setEquipmentID(String equipmentID) {
         this.equipmentID = equipmentID;
     }
 
@@ -51,6 +55,22 @@ public class DamageReportsBean {
 
     public void setReportedBy(String reportedBy) {
         this.reportedBy = reportedBy;
+    }
+
+    public String getReportedByName() {
+        return reportedByName;
+    }
+
+    public void setReportedByName(String reportedByName) {
+        this.reportedByName = reportedByName;
+    }
+
+    public String getEquipmentName() {
+        return equipmentName;
+    }
+
+    public void setEquipmentName(String equipmentName) {
+        this.equipmentName = equipmentName;
     }
 
     public java.sql.Timestamp getReportDate() {
@@ -75,5 +95,21 @@ public class DamageReportsBean {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(String available) {
+        this.available = available;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }

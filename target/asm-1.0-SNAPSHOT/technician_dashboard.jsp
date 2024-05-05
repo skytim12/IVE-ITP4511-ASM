@@ -20,6 +20,7 @@
                 <li><a href="/InventoryController">Manage Inventory</a></li>
                 <li><a href="/BookingController">Manage Bookings</a></li>
                 <li><a href="/ArrangeDeliveryController">Arrange Delivery</a></li>
+                <li><a href="/CheckInController">Check In</a></li>
                 <li><a href="/TechController?action=reportDamage">Report Equipment Damage</a></li>
                 <li><a href="/ProfileController">Profile</a></li>
                 <li><a href="/TechController?action=logout">Logout</a></li>

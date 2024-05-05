@@ -15,7 +15,8 @@
         <nav>
             <ul>
                 <li><a href="manageUsers.jsp">Manage Users</a></li>
-                <li><a href="viewReports.jsp">View Reports</a></li>
+                <li><a href="/DamageController">View Reports</a></li>
+                <li><a href="/CheckOutStatsController">Check-Out Statistics</a></li>
                 <li><a href="systemSettings.jsp">System Settings</a></li>
             </ul>
         </nav>

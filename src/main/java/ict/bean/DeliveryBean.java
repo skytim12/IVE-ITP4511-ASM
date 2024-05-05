@@ -4,6 +4,8 @@
  */
 package ict.bean;
 
+import java.util.List;
+
 /**
  *
  * @author Soman
@@ -11,6 +13,7 @@ package ict.bean;
 public class DeliveryBean {
 
     private int deliveryID;
+    private int reservationID;
     private int equipmentID;
     private String fromCampus;
     private String toCampus;
@@ -18,6 +21,8 @@ public class DeliveryBean {
     private java.sql.Timestamp pickupTime;
     private java.sql.Timestamp deliveryTime;
     private String status;
+    private String userName;
+    private List<EquipmentBean> equipmentList;
 
     public DeliveryBean() {
     }
@@ -39,6 +44,14 @@ public class DeliveryBean {
 
     public void setDeliveryID(int deliveryID) {
         this.deliveryID = deliveryID;
+    }
+
+    public int getReservationID() {
+        return reservationID;
+    }
+
+    public void setReservationID(int reservationID) {
+        this.reservationID = reservationID;
     }
 
     public int getEquipmentID() {
@@ -95,5 +108,21 @@ public class DeliveryBean {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public List<EquipmentBean> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public void setEquipmentList(List<EquipmentBean> equipmentList) {
+        this.equipmentList = equipmentList;
     }
 }
