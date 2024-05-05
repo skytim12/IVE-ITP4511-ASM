@@ -1,36 +1,30 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ict.bean;
 
-/**
- *
- * @author Soman
- */
+import java.util.List;
+
+
 public class ReservationBean {
 
     private int reservationID;
-    private int equipmentID;
     private String userID;
+    private String userName;  
     private java.sql.Date reservedFrom;
     private java.sql.Date reservedTo;
     private String status;
+    private List<EquipmentBean> equipmentList;  
 
-    
     public ReservationBean() {
     }
 
-    public ReservationBean(int reservationID, int equipmentID, String userID, java.sql.Date reservedFrom, java.sql.Date reservedTo, String status) {
+    public ReservationBean(int reservationID, String userID, String userName, java.sql.Date reservedFrom, java.sql.Date reservedTo, String status) {
         this.reservationID = reservationID;
-        this.equipmentID = equipmentID;
         this.userID = userID;
+        this.userName = userName;
         this.reservedFrom = reservedFrom;
         this.reservedTo = reservedTo;
         this.status = status;
     }
 
-    
     public int getReservationID() {
         return reservationID;
     }
@@ -39,20 +33,20 @@ public class ReservationBean {
         this.reservationID = reservationID;
     }
 
-    public int getEquipmentID() {
-        return equipmentID;
-    }
-
-    public void setEquipmentID(int equipmentID) {
-        this.equipmentID = equipmentID;
-    }
-
     public String getUserID() {
         return userID;
     }
 
     public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public java.sql.Date getReservedFrom() {
@@ -77,5 +71,13 @@ public class ReservationBean {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<EquipmentBean> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public void setEquipmentList(List<EquipmentBean> equipmentList) {
+        this.equipmentList = equipmentList;
     }
 }

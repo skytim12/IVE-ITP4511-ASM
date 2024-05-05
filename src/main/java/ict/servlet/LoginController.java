@@ -80,7 +80,7 @@ public class LoginController extends HttpServlet {
             case "Admin": return "/admin_dashboard.jsp";
             case "Technician": return "/technician_dashboard.jsp";
             case "Courier": return "/courier_dashboard.jsp";
-            case "Staff": return "/staff_dashboard.jsp";
+            case "Staff": return "/StaffDashboard";
             default: return "/UserDashboard";
         }
     }

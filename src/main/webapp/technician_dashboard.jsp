@@ -5,6 +5,9 @@
 --%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -14,12 +17,13 @@
         <h1>Welcome, Technician!</h1>
         <nav>
             <ul>
-                <li><a href="/EquipmentController">Manage Equipment</a></li>
-                <li><a href="repairLogs.jsp">Repair Logs</a></li>
+                <li><a href="/InventoryController">Manage Inventory</a></li>
+                <li><a href="/BookingController">Manage Bookings</a></li>
+                <li><a href="/ArrangeDeliveryController">Arrange Delivery</a></li>
+                <li><a href="/TechController?action=reportDamage">Report Equipment Damage</a></li>
+                <li><a href="/ProfileController">Profile</a></li>
+                <li><a href="/TechController?action=logout">Logout</a></li>
             </ul>
         </nav>
-        <footer>
-            <p><a href="main?action=logout">Logout</a></p>
-        </footer>
     </body>
 </html>

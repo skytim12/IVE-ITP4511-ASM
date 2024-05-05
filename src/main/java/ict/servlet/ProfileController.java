@@ -86,7 +86,7 @@ public class ProfileController extends HttpServlet {
                     case "Courier":
                         return "/courier_dashboard.jsp";
                     case "Staff":
-                        return "/staff_dashboard.jsp";
+                        return "/StaffDashboard";
                     default:
                         return "/UserDashboard";
                 }
