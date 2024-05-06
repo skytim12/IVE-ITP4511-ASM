@@ -25,11 +25,11 @@ public class UserDashboardServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-       
+
         String dbUser = this.getServletContext().getInitParameter("dbUser");
         String dbPassword = this.getServletContext().getInitParameter("dbPassword");
         String dbUrl = this.getServletContext().getInitParameter("dbUrl");
-        db = new AsmDB(dbUrl, dbUser, dbPassword);  
+        db = new AsmDB(dbUrl, dbUser, dbPassword);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

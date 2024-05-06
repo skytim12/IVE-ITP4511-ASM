@@ -43,12 +43,15 @@ public class ProfileController extends HttpServlet {
             } else {
                 try {
                     db.updateUserProfile(user.getUserID(), fullName, newPassword);
+                    session.setAttribute("name", fullName);
+                    user.setFullName(fullName);
                     request.setAttribute("successMessage", "Profile updated successfully.");
+
                 } catch (SQLException ex) {
                     request.setAttribute("errorMessage", "Database error: " + ex.getMessage());
                 }
             }
-            doGet(request, response);
+            processRequest(request, response);
         } else {
             response.sendRedirect("login.jsp");
         }

@@ -143,7 +143,7 @@ public class EquipmentController extends HttpServlet {
                         }
                         if (item.getQuantity() + quantityToAdd > totalAvailable) {
                             request.setAttribute("errorMessage", "Cannot add more items than available in stock.");
-                            return; // Stop further processing if over the limit
+                            return; 
                         }
                         item.setQuantity(item.getQuantity() + quantityToAdd);
                         item.setReservedFrom(reservedFrom);
@@ -183,17 +183,17 @@ public class EquipmentController extends HttpServlet {
             Connection conn = null;
             try {
                 conn = db.getConnection();
-                conn.setAutoCommit(false);  // Start transaction
+                conn.setAutoCommit(false);  
 
-                // Fetch user details outside the loop
+                
                 UserBean user = (UserBean) session.getAttribute("userBean");
                 if (user == null) {
                     throw new SQLException("User session not found.");
                 }
                 String destinationCampus = user.getCampusName();
 
-                // Create one reservation record for all items in the cart
-                Date reservedFrom = cart.get(0).getReservedFrom(); // Assuming all items share the same reserved dates
+                
+                Date reservedFrom = cart.get(0).getReservedFrom(); 
                 Date reservedTo = cart.get(0).getReservedTo();
                 int reservationID = db.addReservationAndGetId(user.getUserID(), reservedFrom, reservedTo, destinationCampus);
                 if (reservationID <= 0) {

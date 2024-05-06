@@ -1,132 +1,173 @@
-<%-- 
-    Document   : equipment_list
-    Created on : 2024年4月8日, 上午6:32:22
-    Author     : Soman 
---%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page import="java.text.SimpleDateFormat"%>
-<%@ page import="java.util.Date"%>
+<%@ page import="java.text.SimpleDateFormat, java.util.Date" %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>Equipment List</title>
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-        <script src="js/script.js" defer></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
+        <style>
+            body {
+                background-color: #222831;
+            }
+            .nav-container {
+                background-color: #76ABAE !important;
+            }
+            .navbar-brand, .navbar-nav .nav-link {
+                font-size: 20px;
+                font-weight: 500;
+            }
+            
+            .navbar-brand{
+                font-size: 28px !important;
+                font-weight: 500;
+            }
+            
+            .nav-item {
+                padding-right: 20px;
+            }
+            .navbar {
+                background-color: #76ABAE;
+            }
+            .container {
+                margin-top: 50px;
+                background-color: #EEEEEE;
+            }
+            .container h2 {
+                padding: 10px;
+            }
+            .table {
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        </style>
     </head>
     <body>
-        <h1>Equipment List</h1>
-        <nav>
-            <ul>
-                <c:if test="${not empty dashboardURL}">
-                    <li><a href="${dashboardURL}">DashBoard</a></li>
-                    </c:if>
-                <li><a href="/EquipmentController">All Equipment</a></li>
-                <li><a href="/BorrowingController">My Reservations Record</a></li>
-                <li><a href="/WishlistController">My WishList</a></li>
-                <li><a href="#">Notification</a></li>
-                <li><a href="/ProfileController">Profile</a></li>
-            </ul>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container nav-container">
+                <a class="navbar-brand" href="#">Equipment List</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <c:if test="${not empty dashboardURL}">
+                            <li class="nav-item"><a class="nav-link" href="${dashboardURL}">Dashboard</a></li>
+                            </c:if>
+                        <li class="nav-item"><a class="nav-link" href="/EquipmentController">Reservation</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Reservations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/WishlistController">My Wishlist</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Notifications</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/ProfileController">Profile</a></li>
+                    </ul>
+                </div>
+            </div>
         </nav>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Available</th>
-                    <th>Initial Campus</th>
-                    <th>Current Campus</th>
-                    <th>Condition</th>
-                    <th>Description</th> 
-                    <th>Total</th>
-                    <th>Staff Only</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="equipment" items="${equipmentList}">
+
+        <div class="container">
+            <h2 class="text-center my-4">Equipment List</h2>
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>${equipment.name}</td>
-                        <td>${equipment.available}</td>
-                        <td>${equipment.campusName}</td>
-                        <td>${equipment.currentCampus}</td>
-                        <td>${equipment.condition}</td>
-                        <td>${equipment.description}</td>
-                        <td>${equipment.totalQuantity}</td>
-                        <td>${equipment.exclusiveForStaff == 'Yes' ? 'Yes' : 'No'}</td>
-                        <td>
-                            <c:choose>
-                                <c:when test="${equipment.available == 'Yes'}">
-                                    <!-- Add to Cart Button -->
-                                    <button type="button" class="cartBtn"
-                                            data-name="${equipment.name}"
-                                            data-available="${equipment.available}"
-                                            data-campus="${equipment.campusName}"
-                                            data-condition="${equipment.condition}"
-                                            data-description="${equipment.description}"
-                                            data-total="${equipment.totalQuantity}"
-                                            data-exclusive="${equipment.exclusiveForStaff}"
-                                            data-quantity="1">Add to Cart</button>
-                                </c:when>
-                                <c:otherwise>
-                                    <!-- Add to Wishlist Button -->
-                                    <button type="button" class="wishlistBtn"
-                                            data-id="${equipment.equipmentIDs}"
-                                            data-name="${equipment.name}"
-                                            data-available="${equipment.available}"
-                                            data-campus="${equipment.campusName}"
-                                            data-currentcampus="${equipment.currentCampus}"
-                                            data-condition="${equipment.condition}"
-                                            data-exclusive="${equipment.exclusiveForStaff}"
-                                            data-description="${equipment.description}">Add to Wishlist</button>
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
+                        <th>Name</th>
+                        <th>Available</th>
+                        <th>Initial Campus</th>
+                        <th>Current Campus</th>
+                        <th>Condition</th>
+                        <th>Description</th>
+                        <th>Total</th>
+                        <th>Staff Only</th>
+                        <th>Action</th>
                     </tr>
-                </c:forEach>
-            </tbody>
-        </table>
-        <div>
-            <h2>Your Cart</h2>
-            <c:if test="${not empty cart}">
-                <table>
-                    <thead>
+                </thead>
+                <tbody>
+                    <c:forEach var="equipment" items="${equipmentList}">
                         <tr>
-                            <th>Name</th>
-                            <th>Campus Name</th>
-                            <th>Condition</th>
-                            <th>Reserved From</th>  
-                            <th>Reserved To</th>    
-                            <th>Quantity</th>
-                            <th>Action</th>
+                            <td>${equipment.name}</td>
+                            <td>${equipment.available}</td>
+                            <td>${equipment.campusName}</td>
+                            <td>${equipment.currentCampus}</td>
+                            <td>${equipment.condition}</td>
+                            <td>${equipment.description}</td>
+                            <td>${equipment.totalQuantity}</td>
+                            <td>${equipment.exclusiveForStaff == 'Yes' ? 'Yes' : 'No'}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${equipment.available == 'Yes'}">
+                                        <button type="button" class="btn btn-primary cartBtn"
+                                                data-name="${equipment.name}"
+                                                data-available="${equipment.available}"
+                                                data-campus="${equipment.campusName}"
+                                                data-condition="${equipment.condition}"
+                                                data-description="${equipment.description}"
+                                                data-total="${equipment.totalQuantity}"
+                                                data-exclusive="${equipment.exclusiveForStaff}"
+                                                data-quantity="1">Add to Cart</button>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <button type="button" class="btn btn-secondary wishlistBtn"
+                                                data-id="${equipment.equipmentIDs}"
+                                                data-name="${equipment.name}"
+                                                data-available="${equipment.available}"
+                                                data-campus="${equipment.campusName}"
+                                                data-currentcampus="${equipment.currentCampus}"
+                                                data-condition="${equipment.condition}"
+                                                data-exclusive="${equipment.exclusiveForStaff}"
+                                                data-description="${equipment.description}">Add to Wishlist</button>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="item" items="${cart}">
-                            <tr>
-                                <td>${item.name}</td>
-                                <td>${item.campusName}</td>
-                                <td>${item.condition}</td>
-                                <td>${item.reservedFrom}</td>  
-                                <td>${item.reservedTo}</td>    
-                                <td>${item.quantity}</td>
-                                <td>
-                                    <form action="EquipmentController" method="post">
-                                        <input type="hidden" name="action" value="removeFromCart"/>
-                                        <input type="hidden" name="name" value="${item.name}"/>
-                                        <input type="hidden" name="campus" value="${item.campusName}"/>
-                                        <input type="hidden" name="condition" value="${item.condition}"/>
-                                        <button type="submit">Remove</button>
-                                    </form>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container">
+            <h2 class="mt-4">Your Cart</h2>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Campus Name</th>
+                        <th>Condition</th>
+                        <th>Reserved From</th>
+                        <th>Reserved To</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="item" items="${cart}">
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.campusName}</td>
+                            <td>${item.condition}</td>
+                            <td>${item.reservedFrom}</td>
+                            <td>${item.reservedTo}</td>
+                            <td>${item.quantity}</td>
+                            <td>
+                                <form action="EquipmentController" method="post">
+                                    <input type="hidden" name="action" value="removeFromCart"/>
+                                    <input type="hidden" name="name" value="${item.name}"/>
+                                    <input type="hidden" name="campus" value="${item.campusName}"/>
+                                    <input type="hidden" name="condition" value="${item.condition}"/>
+                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+            <c:if test="${not empty cart}">
                 <form action="EquipmentController" method="post">
                     <input type="hidden" name="action" value="confirmCart" />
-                    <button type="submit">Confirm</button>
+                    <button type="submit" class="btn btn-success">Confirm</button>
                 </form>
             </c:if>
             <c:if test="${empty cart}">
@@ -134,100 +175,193 @@
             </c:if>
         </div>
 
-        <div id="wishlistModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <form action="EquipmentController" method="post">
-                    <input type="hidden" name="action" value="addToWishlist" />
-                    <label for="equipmentID">Equipment ID:</label>
-                    <select name="equipmentID" id="equipmentID"></select><br>
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" readonly><br>
-                    <label for="available">Available:</label>
-                    <input type="text" id="available" name="available" readonly><br>
-                    <label for="campusName">Campus Name:</label>
-                    <input type="text" id="campusName" name="campusName" readonly><br>
-                    <label for="cartCurrentCampus">Current Campus:</label>
-                    <input type="text" id="cartCurrentCampus" name="currentCampus" readonly><br>
-                    <label for="condition">Condition:</label>
-                    <input type="text" id="condition" name="condition" readonly><br>
-                    <label for="exclusiveForStaff">Exclusive for Staff:</label>
-                    <input type="text" id="exclusiveForStaff" name="exclusiveForStaff" readonly><br>
-                    <label for="description">Description:</label>
-                    <input type="text" id="description" name="description" readonly><br>
-                    <button type="submit">Add to Wishlist</button>
-                </form>
-            </div>
-        </div>
 
-        <div id="cartModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <form id="cartForm" action="EquipmentController" method="post">
-                    <input type="hidden" name="action" value="addToCart" />
+        <!-- Modal for Wishlist -->
+        <div class="modal fade" id="wishlistModal" tabindex="-1" aria-labelledby="wishlistModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="wishlistModalLabel">Add to Wishlist</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="EquipmentController" method="post">
+                            <input type="hidden" name="action" value="addToWishlist" />
+                            <div class="mb-3">
+                                <label for="equipmentID" class="form-label">Equipment ID:</label>
+                                <select class="form-select" name="equipmentID" id="equipmentID"></select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" class="form-control" id="name" name="name" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="available" class="form-label">Available:</label>
+                                <input type="text" class="form-control" id="available" name="available" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="campusName" class="form-label">Campus Name:</label>
+                                <input type="text" class="form-control" id="campusName" name="campusName" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartCurrentCampus" class="form-label">Current Campus:</label>
+                                <input type="text" class="form-control" id="cartCurrentCampus" name="currentCampus" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="condition" class="form-label">Condition:</label>
+                                <input type="text" class="form-control" id="condition" name="condition" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exclusiveForStaff" class="form-label">Exclusive for Staff:</label>
+                                <input type="text" class="form-control" id="exclusiveForStaff" name="exclusiveForStaff" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description:</label>
+                                <textarea class="form-control" id="description" name="description" readonly></textarea>
+                            </div>
 
-                    <label for="cartName">Name:</label>
-                    <input type="text" id="cartName" name="name" readonly><br>
-
-                    <label for="cartAvailable">Available:</label>
-                    <input type="text" id="cartAvailable" name="available" readonly><br>
-
-                    <label for="cartCampus">Campus:</label>
-                    <input type="text" id="cartCampus" name="campus" readonly><br>
-
-                    <label for="cartCondition">Condition:</label>
-                    <input type="text" id="cartCondition" name="condition" readonly><br>
-
-                    <label for="cartDescription">Description:</label>
-                    <input type="text" id="cartDescription" name="description" readonly><br>
-
-                    <label for="cartReservedFrom">Reserved From:</label>
-                    <input type="date" id="cartReservedFrom" name="reservedFrom" min="${todayDate}" value="${todayDate}" required><br>
-
-                    <label for="cartReservedTo">Reserved To:</label>
-                    <input type="date" id="cartReservedTo" name="reservedTo" min="${todayDate}" value="${todayDate}" required><br>
-
-
-                    <label for="cartTotal">Total Available:</label>
-                    <input type="text" id="cartTotal" name="total" readonly><br>
-
-                    <label for="cartExclusiveForStaff">Exclusive for Staff:</label>
-                    <input type="text" id="cartExclusiveForStaff" name="exclusiveForStaff" readonly><br>
-
-                    <label for="cartQuantity">Quantity:</label>
-                    <input type="number" id="cartQuantity" name="quantity" min="1"><br>
-
-                    <button type="submit">Add to Cart</button>
-                </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Add to Wishlist</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
 
 
+        <!-- Modal for Cart -->
+        <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cartModalLabel">Add to Cart</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="cartForm" action="EquipmentController" method="post">
+                            <input type="hidden" name="action" value="addToCart" />
+                            <div class="mb-3">
+                                <label for="cartName" class="form-label">Name:</label>
+                                <input type="text" class="form-control" id="cartName" name="name" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartAvailable" class="form-label">Available:</label>
+                                <input type="text" class="form-control" id="cartAvailable" name="available" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartCampus" class="form-label">Campus:</label>
+                                <input type="text" class="form-control" id="cartCampus" name="campus" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartCondition" class="form-label">Condition:</label>
+                                <input type="text" class="form-control" id="cartCondition" name="condition" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartDescription" class="form-label">Description:</label>
+                                <textarea class="form-control" id="cartDescription" name="description" readonly></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartReservedFrom" class="form-label">Reserved From:</label>
+                                <input type="date" class="form-control" id="cartReservedFrom" name="reservedFrom" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartReservedTo" class="form-label">Reserved To:</label>
+                                <input type="date" class="form-control" id="cartReservedTo" name="reservedTo" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartTotal" class="form-label">Total Available:</label>
+                                <input type="text" class="form-control" id="cartTotal" name="total" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartExclusiveForStaff" class="form-label">Exclusive for Staff:</label>
+                                <input type="text" class="form-control" id="cartExclusiveForStaff" name="exclusiveForStaff" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cartQuantity" class="form-label">Quantity:</label>
+                                <input type="number" class="form-control" id="cartQuantity" name="quantity" min="1">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" form="cartForm">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
 
         <script>
-            // Function to show a success message
-            function showSuccessMessage(message) {
-                alert(message);
-            }
+            document.addEventListener('DOMContentLoaded', function () {
+                var wishlistModal = new bootstrap.Modal(document.getElementById('wishlistModal'));
+                var cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
 
-            // Function to show an error message
-            function showErrorMessage(message) {
-                alert(message);
-            }
+                // Attach click event to Wishlist buttons
+                document.querySelectorAll('.wishlistBtn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // Populate the wishlist form fields
+                        var equipmentIDs = this.getAttribute('data-id').split(',');
+                        var select = document.getElementById('equipmentID');
+                        select.innerHTML = '';
 
-            // Check for success message from server and display
-            <% if (request.getAttribute("successMessage") != null) { %>
-            showSuccessMessage("<%= request.getAttribute("successMessage") %>");
-            <% } %>
+                        equipmentIDs.forEach(function (id) {
+                            var option = document.createElement('option');
+                            option.value = id.trim();
+                            option.text = id.trim();
+                            select.appendChild(option);
+                        });
 
-            // Check for error message from server and display
-            <% if (request.getAttribute("errorMessage") != null) { %>
-            showErrorMessage("<%= request.getAttribute("errorMessage") %>");
-            <% } %>
+                        document.getElementById('name').value = this.dataset.name;
+                        document.getElementById('available').value = this.dataset.available;
+                        document.getElementById('campusName').value = this.dataset.campus;
+                        document.getElementById('cartCurrentCampus').value = this.dataset.currentcampus;
+                        document.getElementById('condition').value = this.dataset.condition;
+                        document.getElementById('exclusiveForStaff').value = this.dataset.exclusive;
+                        document.getElementById('description').value = this.dataset.description;
+
+                        wishlistModal.show();
+                    });
+                });
+
+                // Attach click event to Cart buttons
+                document.querySelectorAll('.cartBtn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // Populate the cart form fields
+                        document.getElementById('cartName').value = this.dataset.name;
+                        document.getElementById('cartAvailable').value = this.dataset.available;
+                        document.getElementById('cartCampus').value = this.dataset.campus;
+                        document.getElementById('cartCondition').value = this.dataset.condition;
+                        document.getElementById('cartDescription').value = this.dataset.description;
+                        document.getElementById('cartTotal').value = this.dataset.total;
+                        document.getElementById('cartExclusiveForStaff').value = this.dataset.exclusive;
+
+                        // Set the minimum date for reservation to today's date
+                        const today = new Date().toISOString().split('T')[0];
+                        document.getElementById('cartReservedFrom').setAttribute('min', today);
+                        document.getElementById('cartReservedTo').setAttribute('min', today);
+
+                        cartModal.show();
+                    });
+                });
+
+
+                window.addEventListener('click', function (event) {
+                    if (event.target === document.getElementById('wishlistModal')) {
+                        wishlistModal.hide();
+                    }
+                    if (event.target === document.getElementById('cartModal')) {
+                        cartModal.hide();
+                    }
+                });
+            });
+
+
         </script>
+
 
 
     </body>

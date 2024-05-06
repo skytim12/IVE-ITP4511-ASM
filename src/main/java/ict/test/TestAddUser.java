@@ -7,6 +7,9 @@ import java.sql.SQLException;
 
 public class TestAddUser {
 
+    // Initialize a static variable to keep track of the user ID increment.
+    private static int userCount = 0;
+
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/itp4511_asm";
         String username = "root";
@@ -15,39 +18,42 @@ public class TestAddUser {
         AsmDB asmDB = new AsmDB(url, username, password);
 
         try {
-            // Adding a GeneralUser
-            UserBean generalUser = createUser(asmDB, "220014863", "Soman", "123456", "GeneralUser", "Soman Tsang", "Sha Tin");
-            addUser(asmDB, generalUser);
+            String[] campusesForGeneralUser = {"Sha Tin", "Lee Wai Lee", "Tuen Mun", "Tsing Yi", "Chai Wan"};
+            String[] campusesForTechnician = {"Chai Wan", "Lee Wai Lee", "Sha Tin", "Tuen Mun", "Tsing Yi"};
+            String[] campusesForCourier = {"Lee Wai Lee", "Tuen Mun", "Tsing Yi", "Chai Wan", "Sha Tin"};
+            String[] campusesForStaff = {"Tuen Mun", "Tsing Yi", "Chai Wan", "Sha Tin", "Lee Wai Lee"};
+            String[] campusesForAdminTechnician = {"Tsing Yi", "Chai Wan", "Lee Wai Lee", "Sha Tin", "Tuen Mun"};
 
-            // Adding a Technician
-            UserBean technician = createUser(asmDB, "220014864", "Tech", "password123", "Technician", "Technician 1", "Chai Wan");
-            addUser(asmDB, technician);
-
-            // Adding a Courier
-            UserBean courier = createUser(asmDB, "220014865", "Courier", "password456", "Courier", "Courier 1", "Lee Wai Lee");
-            addUser(asmDB, courier);
-
-            // Adding a Staff
-            UserBean staff = createUser(asmDB, "220014866", "Staff", "password789", "Staff", "Staff 1", "Tuen Mun");
-            addUser(asmDB, staff);
-
-            // Adding an AdminTechnician
-            UserBean adminTechnician = createUser(asmDB, "220014867", "Admin", "admin123", "AdminTechnician", "Admin Technician 1", "Tsing Yi");
-            addUser(asmDB, adminTechnician);
-
+            addAccountsForRole(asmDB, "GeneralUser", campusesForGeneralUser);
+            addAccountsForRole(asmDB, "Technician", campusesForTechnician);
+            addAccountsForRole(asmDB, "Courier", campusesForCourier);
+            addAccountsForRole(asmDB, "Staff", campusesForStaff);
+            addAccountsForRole(asmDB, "AdminTechnician", campusesForAdminTechnician);
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static UserBean createUser(AsmDB asmDB, String userID, String username, String password, String role, String fullName, String campusName) throws IOException, SQLException {
+    private static void addAccountsForRole(AsmDB asmDB, String role, String[] campuses) throws IOException, SQLException {
+        for (int i = 0; i < campuses.length; i++) {
+            UserBean user = createUser(asmDB, role, campuses[i]);
+            addUser(asmDB, user);
+        }
+    }
+
+    private static UserBean createUser(AsmDB asmDB, String role, String campus) throws IOException, SQLException {
+        String userID = String.format("2200%06d", 2000 + userCount++); 
+        String username = role.toLowerCase() + userCount;
+        String password = "123456"; 
+        String fullName = role + " " + userCount;
+
         UserBean user = new UserBean();
         user.setUserID(userID);
         user.setUsername(username);
-        user.setPassword(asmDB.hashPassword(password)); 
+        user.setPassword(asmDB.hashPassword(password));
         user.setRole(role);
         user.setFullName(fullName);
-        user.setCampusName(campusName);
+        user.setCampusName(campus);
         return user;
     }
 

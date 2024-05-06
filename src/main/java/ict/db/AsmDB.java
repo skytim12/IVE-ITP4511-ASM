@@ -77,7 +77,7 @@ public class AsmDB {
                 + "Description TEXT, "
                 + "Available ENUM('Yes', 'No') DEFAULT 'Yes', "
                 + "CampusName ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
-                + "CurrentCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi') NOT NULL, " // Added current campus
+                + "CurrentCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi') NOT NULL, "
                 + "EquipmentCondition ENUM('New', 'Good', 'Fair', 'Poor', 'Out of Service') NOT NULL DEFAULT 'Good', "
                 + "ExclusiveForStaff ENUM('Yes', 'No') DEFAULT 'No', "
                 + "FOREIGN KEY (CampusName) REFERENCES Campus(CampusName), "
@@ -89,8 +89,7 @@ public class AsmDB {
                 + "UserID VARCHAR(20), "
                 + "ReservedFrom DATE, "
                 + "ReservedTo DATE, "
-                + "DestinationCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), " // Added destination campus
-                + "Status ENUM('Reserved', 'Borrowed', 'Returned', 'Success', 'Cancelled') DEFAULT 'Reserved', "
+                + "DestinationCampus ENUM('Chai Wan', 'Lee Wai Lee', 'Sha Tin', 'Tuen Mun', 'Tsing Yi'), "
                 + "FOREIGN KEY (UserID) REFERENCES Users(UserID), "
                 + "FOREIGN KEY (DestinationCampus) REFERENCES Campus(CampusName)"
                 + ")",
@@ -98,7 +97,7 @@ public class AsmDB {
                 "CREATE TABLE IF NOT EXISTS ReservationEquipment ("
                 + "ReservationID INT, "
                 + "EquipmentID VARCHAR(10), "
-                + "Status ENUM('waiting', 'accepted', 'declined', 'returned') DEFAULT 'waiting',"
+                + "Status ENUM('Reserved', 'Borrowed', 'Returned', 'Success', 'Declined') DEFAULT 'Reserved',"
                 + "PRIMARY KEY (ReservationID, EquipmentID), "
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID), "
                 + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID)"
@@ -109,7 +108,7 @@ public class AsmDB {
                 + "ReservationID INT, "
                 + "BorrowDate DATE, "
                 + "ReturnDate DATE, "
-                + "Status ENUM('waiting', 'success', 'returned', 'fail') DEFAULT 'waiting', "
+                + "Status ENUM('waiting', 'success', 'Fail') DEFAULT 'waiting', "
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)"
                 + ")",
                 // Create Wishlist table
@@ -131,7 +130,7 @@ public class AsmDB {
                 + "CourierID VARCHAR(20), "
                 + "PickupTime DATETIME, "
                 + "DeliveryTime DATETIME, "
-                + "Status ENUM('Scheduled', 'In Transit', 'Delivered', 'Cancelled'), "
+                + "Status ENUM('Scheduled', 'In Transit', 'Delivered'), "
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID), "
                 + "FOREIGN KEY (FromCampus) REFERENCES Campus(CampusName), "
                 + "FOREIGN KEY (ToCampus) REFERENCES Campus(CampusName), "
@@ -147,6 +146,15 @@ public class AsmDB {
                 + "Status ENUM('Reported', 'Confirmed'), "
                 + "FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID), "
                 + "FOREIGN KEY (ReportedBy) REFERENCES Users(UserID)"
+                + ")",
+                // Create Notifications table
+                "CREATE TABLE IF NOT EXISTS Notifications ("
+                + "NotificationID INT AUTO_INCREMENT PRIMARY KEY, "
+                + "UserID VARCHAR(20), "
+                + "Message TEXT, "
+                + "ReadStatus ENUM('Read', 'Unread') DEFAULT 'Unread', "
+                + "NotificationDate DATETIME DEFAULT CURRENT_TIMESTAMP, "
+                + "FOREIGN KEY (UserID) REFERENCES Users(UserID)"
                 + ")"
             };
 
