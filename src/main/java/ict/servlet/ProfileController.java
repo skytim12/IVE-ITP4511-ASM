@@ -38,8 +38,8 @@ public class ProfileController extends HttpServlet {
             String newPassword = request.getParameter("newPassword");
             String confirmPassword = request.getParameter("confirmPassword");
 
-            if (!newPassword.equals(confirmPassword)) {
-                request.setAttribute("errorMessage", "Passwords do not match.");
+            if (newPassword == null || confirmPassword == null || !newPassword.equals(confirmPassword)) {
+                request.setAttribute("errorMessage", "Passwords do not match or are null.");
             } else {
                 try {
                     db.updateUserProfile(user.getUserID(), fullName, newPassword);

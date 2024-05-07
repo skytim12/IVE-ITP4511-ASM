@@ -1,6 +1,7 @@
 package ict.bean;
 
 import java.sql.Date;
+import java.util.List;
 
 /**
  * Bean class for handling borrowing records.
@@ -14,6 +15,7 @@ public class BorrowingRecordsBean {
     private String status;
     private String equipmentNames;
     private int totalQuantity;
+    private List<EquipmentBean> equipmentList;
 
     public BorrowingRecordsBean() {
     }
@@ -82,5 +84,13 @@ public class BorrowingRecordsBean {
 
     public void setTotalQuantity(int totalQuantity) {
         this.totalQuantity = totalQuantity;
+    }
+
+    public List<EquipmentBean> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public void setEquipmentList(List<EquipmentBean> equipmentList) {
+        this.equipmentList = equipmentList;
     }
 }

@@ -4,6 +4,7 @@
  */
 package ict.servlet;
 
+import ict.bean.EquipmentBean;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,12 +14,13 @@ import jakarta.servlet.http.HttpSession;
 import ict.db.AsmDB;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  *
  * @author Soman
  */
-
+@WebServlet(name = "TechController", urlPatterns = {"/TechDashboard"})
 public class TechController extends HttpServlet {
 
     private AsmDB db;
@@ -31,11 +33,34 @@ public class TechController extends HttpServlet {
         db = new AsmDB(dbUrl, dbUser, dbPassword);
     }
 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            List<EquipmentBean> equipmentList = db.UserfetchReservableEquipmentList();
+            request.setAttribute("equipmentList", equipmentList);
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "Error fetching equipment data: " + e.getMessage());
+        }
+        request.getRequestDispatcher("/technician_dashboard.jsp").forward(request, response);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        switch (action) {
+
+            case "logout":
+                doLogout(request, response);
+                break;
+            default:
+                response.sendRedirect("login.jsp");
+                break;
+        }
+    }
+
     private void doLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.invalidate(); 
+            session.invalidate();
         }
-        response.sendRedirect("login.jsp"); 
+        response.sendRedirect("login.jsp");
     }
 }

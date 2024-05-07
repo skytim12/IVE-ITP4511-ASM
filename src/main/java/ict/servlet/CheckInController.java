@@ -25,7 +25,7 @@ public class CheckInController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        // Initialize the database object using context parameters
+
         String dbUrl = getServletContext().getInitParameter("dbUrl");
         String dbUser = getServletContext().getInitParameter("dbUser");
         String dbPassword = getServletContext().getInitParameter("dbPassword");
@@ -63,8 +63,9 @@ public class CheckInController extends HttpServlet {
 
     private void handleCheckIn(HttpServletRequest request, UserBean user) throws IOException {
         try {
+            int reservationID = Integer.parseInt(request.getParameter("reservationID"));
             int deliveryID = Integer.parseInt(request.getParameter("deliveryID"));
-            boolean success = db.checkInDelivery(deliveryID, user.getCampusName());
+            boolean success = db.checkInDelivery(deliveryID, reservationID, user.getCampusName());
             if (success) {
                 request.setAttribute("successMessage", "Check-in successful.");
             } else {
@@ -78,12 +79,13 @@ public class CheckInController extends HttpServlet {
     private void handleDamageReport(HttpServletRequest request, UserBean user) throws IOException {
         String equipmentID = request.getParameter("equipmentID");
         String description = request.getParameter("description");
-        String reportedBy = user.getUserID();  // Assuming UserBean contains a method getUserID()
+        int reservationID = Integer.parseInt(request.getParameter("reservationID"));
+        String reportedBy = user.getUserID();
         java.util.Date today = new java.util.Date();
-        java.sql.Timestamp reportDate = new java.sql.Timestamp(today.getTime());  // Current timestamp
+        java.sql.Timestamp reportDate = new java.sql.Timestamp(today.getTime());
 
         try {
-            boolean success = db.reportDamage(equipmentID, description, reportedBy, reportDate);
+            boolean success = db.reportDamage(reservationID, equipmentID, description, reportedBy, reportDate);
             if (success) {
                 request.setAttribute("successMessage", "Damage reported successfully.");
             } else {

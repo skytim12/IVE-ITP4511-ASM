@@ -5,7 +5,6 @@ C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\db\AsmDB.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\test\TestAddEquipment.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\BookingController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\EquipmentController.java
-C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\AddUserController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\bean\EquipmentBean.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\InventoryController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\StaffController.java
@@ -19,6 +18,8 @@ C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\test\TestAddCampus.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\test\RunAllTests.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\bean\ItemBean.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\bean\ReservationBean.java
+C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\CourierControllor.java
+C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\BookingDetailController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\WishlistController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\hk\edu\ive\itp4511\asm\JakartaRestConfiguration.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\UpdateDeliveryStatusController.java
@@ -27,6 +28,7 @@ C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\bean\UserBean.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\bean\WishlistBean.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\DeliveryController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\test\createdb.java
+C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\ManageUsersController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\UserDashboardServlet.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\servlet\DamageController.java
 C:\Users\15024\NetBeansProjects\asm\src\main\java\ict\bean\EquipmentStats.java

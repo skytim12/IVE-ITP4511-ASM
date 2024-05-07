@@ -8,25 +8,95 @@
 <%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Inventory Management</title>
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-        <script src="js/modal-script.js" defer></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
+        <style>
+
+            body {
+                background-color: #222831;
+            }
+
+            .nav-container{
+                background-color: #76ABAE !important;
+            }
+
+            .navbar-brand{
+                font-size: 28px !important;
+                font-weight: 500;
+            }
+
+            .navbar-nav .nav-link {
+                font-size: 20px !important;
+                font-weight: 500;
+            }
+
+            .nav-item{
+                padding-right: 18px
+            }
+
+            .navbar {
+                background-color: #76ABAE;
+            }
+            .container {
+                margin-top: 50px;
+                background-color: #EEEEEE;
+            }
+
+            .container h2{
+                padding: 10px;
+            }
+            .table {
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+        </style>
     </head>
     <body>
-        <h1>Inventory Management</h1>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container nav-container">
+                <a class="navbar-brand" href="/TechDashboard">Inventory Management</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavInventory" aria-controls="navbarNavInventory" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavInventory">
+                    <ul class="navbar-nav">
+                       
+                        <li class="nav-item">
+                            <a class="nav-link" href="/InventoryController">Show Inventory</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/BookingController">Manage Bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/ArrangeDeliveryController">Arrange Delivery</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/CheckInController">Check In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/ProfileController">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="main?action=logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
-        <nav>
-            <ul>
-                <c:if test="${not empty dashboardURL}">
-                    <li><a href="${dashboardURL}">DashBoard</a></li>
-                    </c:if>
-                <li><a href="/InventoryController">Show Inventory</a></li>
+        <div class="container mt-5">
 
-            </ul>
-            <button id="addBtn" onclick="showAddModal()">Add New Item</button>      
-            <table>
+            <h2 class="text-center my-4">Inventory Managementt</h2>
+
+            <button id="addBtn" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addModal">Add New Item</button>
+
+            <table class="table table-striped mt-3">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -53,7 +123,8 @@
                             <td>${equipment.campusName}</td>
                             <td>${equipment.currentCampus}</td>
                             <td>
-                                <button type="button" onclick="showEditModal({
+                                <button type="button" class="btn btn-warning" onclick="showEditModal({
+                                            equipmentName: '${equipment.name}',
                                             equipmentID: '${equipment.equipmentID}',
                                             description: '${equipment.description}',
                                             available: '${equipment.available}',
@@ -63,147 +134,236 @@
                                             exclusiveForStaff: '${equipment.exclusiveForStaff}'
                                         });">Edit</button>
                             </td>
-                            <td><button onclick="showDeleteModal('${equipment.equipmentID}');">Delete</button></td>
+                            <td><button class="btn btn-danger" onclick="showDeleteModal('${equipment.equipmentID}');">Delete</button></td>
                         </tr>
                     </c:forEach>
                 </tbody>
             </table>
 
             <!-- Add Item Modal -->
-            <div id="addModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeAddModal()">&times;</span>
-                    <form id="addForm" action="/InventoryController" method="post">
-                        <input type="hidden" name="action" value="add">
-
-                        <!-- Equipment ID input field -->
-                        <label for="addEquipmentID">Equipment ID:</label>
-                        <input type="text" name="equipmentID" id="addEquipmentID" value="${newEquipmentID}" readonly><br>
-
-                        <!-- Name input field -->
-                        <label for="addName">Name:</label>
-                        <input type="text" name="name" id="addName"><br>
-
-                        <!-- Description input field -->
-                        <label for="addDescription">Description:</label>
-                        <textarea id="addDescription" name="description" rows="4" cols="50"></textarea><br>
-
-                        <!-- Available radio buttons -->
-                        <fieldset>
-                            <legend>Available:</legend>
-                            <label><input type="radio" name="available" value="Yes" id="addAvailableYes"> Yes</label>
-                            <label><input type="radio" name="available" value="No" id="addAvailableNo"> No</label>
-                        </fieldset><br>
-
-                        <!-- Condition select field -->
-                        <label for="addCondition">Condition:</label>
-                        <select id="addCondition" name="condition">
-                            <option value="New">New</option>
-                            <option value="Good">Good</option>
-                            <option value="Fair">Fair</option>
-                            <option value="Poor">Poor</option>
-                            <option value="Out of Service">Out of Service</option>
-                        </select><br>
-
-                        <!-- Exclusive for Staff radio buttons -->
-                        <fieldset>
-                            <legend>Exclusive for Staff:</legend>
-                            <label><input type="radio" name="exclusiveForStaff" value="Yes" id="addExclusiveForStaffYes"> Yes</label>
-                            <label><input type="radio" name="exclusiveForStaff" value="No" id="addExclusiveForStaffNo"> No</label>
-                        </fieldset><br>
-
-                        <!-- Submit button -->
-                        <input type="submit" value="Add Item">
-                    </form>
+            <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addModalLabel">Add New Item</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addForm" action="/InventoryController" method="post">
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="equipmentID" id="addEquipmentID" value="${newEquipmentID}" readonly>
+                                <div class="mb-3">
+                                    <label for="addName" class="form-label">Name:</label>
+                                    <input type="text" class="form-control" name="name" id="addName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addDescription" class="form-label">Description:</label>
+                                    <textarea class="form-control" id="addDescription" name="description" rows="4"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addCondition" class="form-label">Condition:</label>
+                                    <select class="form-select" id="addCondition" name="condition">
+                                        <option value="New">New</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Fair">Fair</option>
+                                        <option value="Poor">Poor</option>
+                                        <option value="Out of Service">Out of Service</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addAvailable" class="form-label">Available:</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="available" id="addAvailableYes" value="Yes">
+                                        <label class="form-check-label" for="addAvailableYes">
+                                            Yes
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="available" id="addAvailableNo" value="No">
+                                        <label class="form-check-label" for="addAvailableNo">
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Add Item</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-
 
             <!-- Edit Item Modal -->
-            <div id="editModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <form action="/InventoryController" method="post">
-                        <input type="hidden" name="action" value="update">
+            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Edit Item</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/InventoryController" method="post">
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" id="editEquipmentID" name="equipmentID">
 
-                        <label for="editEquipmentID">Equipment ID:</label>
-                        <input type="text" name="equipmentID" id="editEquipmentID" readonly><br>
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label">Name:</label>
+                                    <input type="text" class="form-control" id="editName" name="name" readonly required>
+                                </div>
 
-                        <label for="editDescription">Description:</label>
-                        <textarea id="editDescription" name="description" rows="4" cols="50"></textarea><br>
+                                <div class="mb-3">
+                                    <label for="editDescription" class="form-label">Description:</label>
+                                    <textarea class="form-control" id="editDescription" name="description" rows="4"></textarea>
+                                </div>
 
-                        <fieldset>
-                            <legend>Available:</legend>
-                            <label><input type="radio" name="available" value="Yes" id="editAvailableYes"> Yes</label>
-                            <label><input type="radio" name="available" value="No" id="editAvailableNo"> No</label>
-                        </fieldset><br>
+                                <div class="mb-3">
+                                    <label for="editCondition" class="form-label">Condition:</label>
+                                    <select class="form-select" id="editCondition" name="condition">
+                                        <option value="New">New</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Fair">Fair</option>
+                                        <option value="Poor">Poor</option>
+                                        <option value="Out of Service">Out of Service</option>
+                                    </select>
+                                </div>
 
-                        <label for="editCurrentCampus">Current Campus:</label>
-                        <select id="editCurrentCampus" name="currentCampus">
-                            <option value="Chai Wan">Chai Wan</option>
-                            <option value="Lee Wai Lee">Lee Wai Lee</option>
-                            <option value="Sha Tin">Sha Tin</option>
-                            <option value="Tuen Mun">Tuen Mun</option>
-                            <option value="Tsing Yi">Tsing Yi</option>
-                        </select><br>
+                                <div class="mb-3">
+                                    <label for="editAvailable" class="form-label">Available:</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="available" id="editAvailableYes" value="Yes">
+                                        <label class="form-check-label" for="editAvailableYes">Yes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="available" id="editAvailableNo" value="No">
+                                        <label class="form-check-label" for="editAvailableNo">No</label>
+                                    </div>
+                                </div>
 
-                        <label for="editOriginalCampus">Original Campus:</label>
-                        <input type="text" id="editOriginalCampus" name="originalCampus" readonly><br>
+                                <div class="mb-3">
+                                    <label for="editCurrentCampus" class="form-label">Current Campus:</label>
+                                    <select class="form-select" id="editCurrentCampus" name="currentCampus">
+                                        <option value="Chai Wan">Chai Wan</option>
+                                        <option value="Lee Wai Lee">Lee Wai Lee</option>
+                                        <option value="Sha Tin">Sha Tin</option>
+                                        <option value="Tuen Mun">Tuen Mun</option>
+                                        <option value="Tsing Yi">Tsing Yi</option>
+                                    </select>
+                                </div>
 
-                        <label for="editCondition">Condition:</label>
-                        <select id="editCondition" name="condition">
-                            <option value="New">New</option>
-                            <option value="Good">Good</option>
-                            <option value="Fair">Fair</option>
-                            <option value="Poor">Poor</option>
-                            <option value="Out of Service">Out of Service</option>
-                        </select><br>
+                                <div class="mb-3">
+                                    <label for="editExclusiveForStaff" class="form-label">Exclusive for Staff:</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exclusiveForStaff" id="editExclusiveForStaffYes" value="Yes">
+                                        <label class="form-check-label" for="editExclusiveForStaffYes">Yes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exclusiveForStaff" id="editExclusiveForStaffNo" value="No">
+                                        <label class="form-check-label" for="editExclusiveForStaffNo">No</label>
+                                    </div>
+                                </div>
 
-                        <fieldset>
-                            <legend>Exclusive for Staff:</legend>
-                            <label><input type="radio" name="exclusiveForStaff" value="Yes" id="editExclusiveForStaffYes"> Yes</label>
-                            <label><input type="radio" name="exclusiveForStaff" value="No" id="editExclusiveForStaffNo"> No</label>
-                        </fieldset><br>
-
-                        <input type="submit" value="Update Item">
-                    </form>
+                                <button type="submit" class="btn btn-primary">Update Item</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+
 
             <!-- Delete Item Modal -->
-            <div id="deleteModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <p>Are you sure you want to delete this item?</p>
-                    <form action="/InventoryController" method="post">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" id="deleteEquipmentID" name="equipmentID">
-                        <input type="submit" value="Delete Item">
-                    </form>
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this item?
+                        </div>
+                        <div class="modal-footer">
+                            <form action="/InventoryController" method="post">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" id="deleteEquipmentID" name="equipmentID">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+        </div>
 
-            <script>
-                // Function to show a success message
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                var addModal = new bootstrap.Modal(document.getElementById('addModal'));
+                var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+
+                document.getElementById('addBtn').addEventListener('click', function () {
+                    addModal.show();
+                });
+
+
+                window.showEditModal = function (data) {
+                    document.getElementById('editName').value = data.equipmentName;
+                    document.getElementById('editEquipmentID').value = data.equipmentID;
+                    document.getElementById('editDescription').value = data.description;
+                    document.querySelectorAll('[name="available"]').forEach((radio) => {
+                        if (radio.value === data.available) {
+                            radio.checked = true;
+                        }
+                    });
+                    document.getElementById('editCurrentCampus').value = data.currentCampus;
+                    document.getElementById('editCondition').value = data.condition;
+                    document.querySelector('[name="exclusiveForStaff"][value="' + data.exclusiveForStaff + '"]').checked = true;
+
+
+                    editModal.show();
+                };
+
+                window.showDeleteModal= function (equipmentID) {
+
+                    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+
+                    var deleteEquipmentIDInput = document.getElementById('deleteEquipmentID');
+                    deleteEquipmentIDInput.value = equipmentID;
+
+
+                    deleteModal.show();
+                }
+
+
+                document.querySelectorAll('.deleteButton').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        document.getElementById('deleteEquipmentID').value = this.dataset.equipmentId;
+                        deleteModal.show();
+                    });
+                });
+
+
                 function showSuccessMessage(message) {
                     alert(message);
                 }
 
-                // Function to show an error message
                 function showErrorMessage(message) {
                     alert(message);
                 }
 
-                // Check for success message from server and display
-                <% if (request.getAttribute("successMessage") != null) { %>
+            <% if (request.getAttribute("successMessage") != null) { %>
                 showSuccessMessage("<%= request.getAttribute("successMessage") %>");
-                <% } %>
+            <% } %>
 
-                // Check for error message from server and display
-                <% if (request.getAttribute("errorMessage") != null) { %>
+            <% if (request.getAttribute("errorMessage") != null) { %>
                 showErrorMessage("<%= request.getAttribute("errorMessage") %>");
-                <% } %>
-            </script>
+            <% } %>
+            });
+        </script>
+
+
+
     </body>
 </html>

@@ -42,11 +42,11 @@ public class BookingController extends HttpServlet {
         try {
             switch (action) {
                 case "Accept":
-                    updateBorrowingRecordStatus(reservationID, "success");
+                    updateBorrowingRecordStatus(reservationID, "Reserved");
                     request.setAttribute("successMessage", "Reservation accepted successfully.");
                     break;
                 case "Decline":
-                    updateBorrowingRecordStatus(reservationID, "fail");
+                    updateBorrowingRecordStatus(reservationID, "Declined");
                     request.setAttribute("successMessage", "Reservation declined successfully.");
                     break;
                 default:
@@ -60,7 +60,7 @@ public class BookingController extends HttpServlet {
     }
 
     private void updateBorrowingRecordStatus(String reservationID, String status) throws SQLException, IOException {
-        db.updateBorrowingRecordStatus(reservationID, status);
+        db.updateReservationEquipmentRecordStatus(reservationID, status);
     }
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

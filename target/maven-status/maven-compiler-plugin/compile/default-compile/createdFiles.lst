@@ -1,1 +1,15 @@
-ict\servlet\UpdateDeliveryStatusController.class
+hk\edu\ive\itp4511\asm\JakartaRestConfiguration.class
+ict\servlet\AdminController.class
+ict\bean\ReservationBean.class
+ict\bean\EquipmentBean.class
+ict\tags\ErrorMessageTag.class
+hk\edu\ive\itp4511\asm\resources\JakartaEE10Resource.class
+ict\bean\WishlistBean.class
+ict\bean\UserBean.class
+ict\test\createdb.class
+ict\bean\EquipmentStats.class
+ict\bean\CampusStats.class
+ict\bean\ItemBean.class
+ict\bean\DeliveryBean.class
+ict\bean\DamageReportsBean.class
+ict\bean\BorrowingRecordsBean.class

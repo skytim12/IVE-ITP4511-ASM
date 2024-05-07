@@ -21,7 +21,6 @@ public class ArrangeDeliveryController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        // Initialize the database object using context parameters
         String dbUrl = getServletContext().getInitParameter("dbUrl");
         String dbUser = getServletContext().getInitParameter("dbUser");
         String dbPassword = getServletContext().getInitParameter("dbPassword");
@@ -74,9 +73,8 @@ public class ArrangeDeliveryController extends HttpServlet {
         int reservationID = Integer.parseInt(request.getParameter("reservationID"));
         String fromCampus = user.getCampusName();
         String toCampus = request.getParameter("toCampus");
-        String courierID = request.getParameter("courierID");
 
-        db.addDelivery(reservationID, fromCampus, toCampus, courierID, "Scheduled");
+        db.addDelivery(reservationID, fromCampus, toCampus, "Scheduled");
     }
 
 }

@@ -79,12 +79,11 @@
                         <th>Quantity</th>
                         <th>Borrow Date</th>
                         <th>Return Date</th>
-                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <c:forEach var="record" items="${borrowingRecords}">
+                    <c:forEach var="record" items="${borrowingRecords}" varStatus="status">
                         <tr>
                             <td>${record.recordID}</td>
                             <td>${record.equipmentNames}</td>
@@ -95,20 +94,49 @@
                                     <c:when test="${record.returnDate != null}">
                                         <fmt:formatDate value="${record.returnDate}" pattern="yyyy-MM-dd"/>
                                     </c:when>
-                                    <c:otherwise>
-                                        Not Returned
-                                    </c:otherwise>
+                                    <c:otherwise>Not Returned</c:otherwise>
                                 </c:choose>
                             </td>
-                            <td>${record.status}</td>
-                            <td>
-                                <c:if test="${record.status eq 'success'}">
-                                    <form action="/BorrowingController" method="post" class="d-inline">
-                                        <input type="hidden" name="action" value="returnEquipment"/>
-                                        <input type="hidden" name="recordID" value="${record.recordID}"/>
-                                        <button type="submit" class="btn btn-primary">Return Equipment</button>
-                                    </form>
-                                </c:if>
+                           
+                            <td><button type="button" class="btn btn-info" onclick="toggleDetails(${status.index});">Toggle Details</button></td>
+                        </tr>
+                        <tr id="details${status.index}" style="display:none;">
+                            <td colspan="9">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Campus Name</th>
+                                            <th>Current Campus</th>
+                                            <th>Condition</th>
+                                            <th>Exclusive For Staff</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="equipment" items="${record.equipmentList}">
+                                            <tr>
+                                                <td>${equipment.name}</td>
+                                                <td>${equipment.description}</td>
+                                                <td>${equipment.campusName}</td>
+                                                <td>${equipment.currentCampus}</td>
+                                                <td>${equipment.condition}</td>
+                                                <td>${equipment.exclusiveForStaff}</td>
+                                                <td>${equipment.status}</td>
+                                                <td>
+                                                    <c:if test="${equipment.status eq 'Borrowed'}">
+                                                        <form action="/BorrowingController" method="post" class="d-inline">
+                                                            <input type="hidden" name="action" value="returnEquipment"/>
+                                                            <input type="hidden" name="recordID" value="${record.recordID}"/>
+                                                            <input type="hidden" name="equipmentID" value="${equipment.equipmentID}"/>
+                                                            <button type="submit" class="btn btn-primary">Return Equipment</button>
+                                                        </form></td>
+                                                    </c:if>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
                             </td>
                         </tr>
                     </c:forEach>
@@ -117,5 +145,15 @@
         </div>
         <!-- Bootstrap JS Bundle -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
+        <script>
+                                        function toggleDetails(index) {
+                                            var row = document.getElementById('details' + index);
+                                            if (row.style.display === 'none') {
+                                                row.style.display = '';
+                                            } else {
+                                                row.style.display = 'none';
+                                            }
+                                        }
+        </script>
     </body>
 </html>

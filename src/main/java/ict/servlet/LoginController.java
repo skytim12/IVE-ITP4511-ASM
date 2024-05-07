@@ -78,8 +78,8 @@ public class LoginController extends HttpServlet {
     private String getTargetURL(String role) {
         switch (role) {
             case "AdminTechnician": return "/AdminController";
-            case "Technician": return "/technician_dashboard.jsp";
-            case "Courier": return "/courier_dashboard.jsp";
+            case "Technician": return "/TechDashboard";
+            case "Courier": return "/CourierControllor";
             case "Staff": return "/StaffDashboard";
             default: return "/UserDashboard";
         }

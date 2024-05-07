@@ -20,6 +20,7 @@ public class EquipmentBean {
     private int TotalQuantity;
     private String exclusiveForStaff;
     private String currentCampus;
+    private String status;
 
     public EquipmentBean() {
     }
@@ -111,5 +112,13 @@ public class EquipmentBean {
 
     public void setExclusiveForStaff(String exclusiveForStaff) {
         this.exclusiveForStaff = exclusiveForStaff;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

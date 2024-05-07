@@ -25,22 +25,22 @@ public class AdminController extends HttpServlet {
                     break;
             }
         } else {
-            // Default action can redirect to the dashboard or handle other general admin cases
+           
             response.sendRedirect("admin_dashboard.jsp");
         }
     }
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession(false); // Get session if it exists
+        HttpSession session = request.getSession(false); 
         if (session != null) {
-            session.invalidate(); // Invalidate session if exists
+            session.invalidate();
         }
-        response.sendRedirect("login.jsp"); // Redirect to login page after logout
+        response.sendRedirect("login.jsp"); 
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Post request handling if necessary, for now, just redirect to doGet
+        
         doGet(request, response);
     }
 }

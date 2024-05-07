@@ -17,7 +17,7 @@
         body, html {
             height: 100%;
             margin: 0;
-            display: flex;
+            display: flex;  
             justify-content: center;
             align-items: center;
             background-color: #222831;
@@ -34,6 +34,10 @@
         }
         .form-group {
             margin-bottom: 20px;
+        }
+        
+        .btn{
+           padding: 10px 117px;
         }
     </style>
 </head>

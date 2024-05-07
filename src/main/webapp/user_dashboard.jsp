@@ -90,7 +90,7 @@
         <div class="container">
             <h2 class="text-center my-4">Reservable Equipment List</h2>
             <table class="table">
-                <thead class="thead-dark">
+                 <thead class="thead-dark">
                     <tr>
                         <th>Name</th>
                         <th>Available</th>

@@ -78,6 +78,7 @@ public class EquipmentController extends HttpServlet {
         } catch (SQLException ex) {
             Logger.getLogger(EquipmentController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        doGet(request, response);
     }
 
     private void removeFromCart(HttpServletRequest request, HttpServletResponse response) {
@@ -143,7 +144,7 @@ public class EquipmentController extends HttpServlet {
                         }
                         if (item.getQuantity() + quantityToAdd > totalAvailable) {
                             request.setAttribute("errorMessage", "Cannot add more items than available in stock.");
-                            return; 
+                            return;
                         }
                         item.setQuantity(item.getQuantity() + quantityToAdd);
                         item.setReservedFrom(reservedFrom);
@@ -183,34 +184,32 @@ public class EquipmentController extends HttpServlet {
             Connection conn = null;
             try {
                 conn = db.getConnection();
-                conn.setAutoCommit(false);  
+                conn.setAutoCommit(false);
 
-                
                 UserBean user = (UserBean) session.getAttribute("userBean");
                 if (user == null) {
                     throw new SQLException("User session not found.");
                 }
                 String destinationCampus = user.getCampusName();
 
-                
-                Date reservedFrom = cart.get(0).getReservedFrom(); 
+                Date reservedFrom = cart.get(0).getReservedFrom();
                 Date reservedTo = cart.get(0).getReservedTo();
                 int reservationID = db.addReservationAndGetId(user.getUserID(), reservedFrom, reservedTo, destinationCampus);
                 if (reservationID <= 0) {
                     throw new SQLException("Failed to create a reservation record.");
                 }
 
-                // Process each cart item to link with the created reservation
+                
                 for (ItemBean item : cart) {
                     List<String> equipmentIDs = db.fetchEquipmentIDsForReservation(item.getName(), item.getQuantity(), item.getCampusName());
                     for (String equipmentID : equipmentIDs) {
-                        // Add ReservationEquipment record
+                      
                         boolean equipmentReserved = db.addReservationEquipment(reservationID, equipmentID);
                         if (!equipmentReserved) {
                             throw new SQLException("Failed to link equipment to reservation.");
                         }
 
-                        // Set equipment as unavailable
+                      
                         boolean availabilityUpdated = db.setEquipmentUnavailable(equipmentID);
                         if (!availabilityUpdated) {
                             throw new SQLException("Failed to update equipment availability.");
@@ -219,24 +218,24 @@ public class EquipmentController extends HttpServlet {
                     }
 
                 }
-                
-                // Optional: Add a borrowing record
+
+               
                 boolean borrowingRecordAdded = db.addBorrowingRecord(reservationID, new java.util.Date()); // using current date as borrow date
                 if (!borrowingRecordAdded) {
                     throw new SQLException("Failed to add borrowing record.");
                 }
 
-                conn.commit();  // Commit transaction
-                session.removeAttribute("cart");  // Clear the cart on success
+                conn.commit();  
+                session.removeAttribute("cart"); 
                 request.setAttribute("successMessage", "Transaction successful and cart confirmed.");
             } catch (SQLException ex) {
                 if (conn != null) {
-                    conn.rollback();  // Rollback transaction on error
+                    conn.rollback(); 
                 }
                 request.setAttribute("errorMessage", "Failed to process cart: " + ex.getMessage());
             } finally {
                 if (conn != null) {
-                    conn.setAutoCommit(true);  // Reset auto-commit to true
+                    conn.setAutoCommit(true);  
                     conn.close();
                 }
             }
@@ -277,7 +276,7 @@ public class EquipmentController extends HttpServlet {
                     case "Courier":
                         return "/courier_dashboard.jsp";
                     case "Staff":
-                        return "/staff_dashboard.jsp";
+                        return "/StaffDashboard";
                     default:
                         return "/UserDashboard";
                 }

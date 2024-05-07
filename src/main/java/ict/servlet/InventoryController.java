@@ -170,8 +170,7 @@ public class InventoryController extends HttpServlet {
             return;
         }
 
-        String dashboardURL = getDashboardURL(request);
-        request.setAttribute("dashboardURL", dashboardURL);
+
         
         String newEquipmentID = db.generateUniqueEquipmentID();
         request.setAttribute("newEquipmentID", newEquipmentID);
@@ -186,25 +185,5 @@ public class InventoryController extends HttpServlet {
         }
     }
 
-    private String getDashboardURL(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            UserBean user = (UserBean) session.getAttribute("userBean");
-            if (user != null) {
-                switch (user.getRole()) {
-                    case "Admin":
-                        return "/admin_dashboard.jsp";
-                    case "Technician":
-                        return "/technician_dashboard.jsp";
-                    case "Courier":
-                        return "/courier_dashboard.jsp";
-                    case "Staff":
-                        return "/StaffDashboard";
-                    default:
-                        return "/UserDashboard";
-                }
-            }
-        }
-        return "";  // Fallback URL if no user session or unknown role
-    }
+
 }

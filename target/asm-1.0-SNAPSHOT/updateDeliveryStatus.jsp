@@ -4,10 +4,10 @@
 <html>
     <head>
         <title>Update Delivery Status</title>
-        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <script>
             function toggleDetails(rowId) {
-                var detailsRow = document.getElementById(rowId);
+                var detailsRow = document.getElementById('details' + rowId);
                 if (detailsRow.style.display === 'none') {
                     detailsRow.style.display = 'table-row';
                 } else {
@@ -33,59 +33,64 @@
         </script>
     </head>
     <body>
-        <h1>Delivery Management</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Delivery ID</th>
-                    <th>From Campus</th>
-                    <th>To Campus</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="delivery" items="${deliveries}" varStatus="status">
-                    <tr onclick="toggleDetails('details${status.index}')">
-                        <td>${delivery.deliveryID}</td>
-                        <td>${delivery.fromCampus}</td>
-                        <td>${delivery.toCampus}</td>
-                        <td>${delivery.status}</td>
-                        <td>
-                            <form action="UpdateDeliveryStatusController" method="post">
-                                <input type="hidden" name="deliveryID" value="${delivery.deliveryID}">
-                                <input type="hidden" name="action" value="updateStatus">
-                                <button type="submit">Update Status</button>
-                            </form>
-                        </td>
+        <div class="container mt-4">
+            <h1>Delivery Management</h1>
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Delivery ID</th>
+                        <th>From Campus</th>
+                        <th>To Campus</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>Toggle Details</th>
                     </tr>
-                    <!-- Hidden row for displaying detailed equipment info -->
-                    <tr id="details${status.index}" style="display:none;">
-                        <td colspan="5">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Equipment ID</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Condition</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach var="item" items="${delivery.equipmentList}">
+                </thead>
+                <tbody>
+                    <c:forEach var="delivery" items="${deliveries}" varStatus="status">
+                        <tr>
+                            <td>${delivery.deliveryID}</td>
+                            <td>${delivery.fromCampus}</td>
+                            <td>${delivery.toCampus}</td>
+                            <td>${delivery.status}</td>
+                            <td>
+                                <form action="UpdateDeliveryStatusController" method="post">
+                                    <input type="hidden" name="deliveryID" value="${delivery.deliveryID}">
+                                    <input type="hidden" name="action" value="updateStatus">
+                                    <button type="submit" class="btn btn-primary">Update Status</button>
+                                </form>
+                            </td>
+                            <td><button type="button" class="btn btn-info" onclick="toggleDetails(${status.index});">Toggle Details</button></td>
+                        </tr>
+                        <!-- Hidden row for displaying detailed equipment info -->
+                        <tr id="details${status.index}" class="collapse">
+                            <td colspan="6">
+                                <table class="table">
+                                    <thead>
                                         <tr>
-                                            <td>${item.equipmentID}</td>
-                                            <td>${item.name}</td>
-                                            <td>${item.description}</td>
-                                            <td>${item.condition}</td>
+                                            <th>Equipment ID</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Condition</th>
                                         </tr>
-                                    </c:forEach>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="item" items="${delivery.equipmentList}">
+                                            <tr>
+                                                <td>${item.equipmentID}</td>
+                                                <td>${item.name}</td>
+                                                <td>${item.description}</td>
+                                                <td>${item.condition}</td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

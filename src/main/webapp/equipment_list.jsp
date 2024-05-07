@@ -22,12 +22,12 @@
                 font-size: 20px;
                 font-weight: 500;
             }
-            
+
             .navbar-brand{
                 font-size: 28px !important;
                 font-weight: 500;
             }
-            
+
             .nav-item {
                 padding-right: 20px;
             }
@@ -345,6 +345,7 @@
                         document.getElementById('cartReservedTo').setAttribute('min', today);
 
                         cartModal.show();
+
                     });
                 });
 
@@ -359,10 +360,25 @@
                 });
             });
 
+            function showSuccessMessage(message) {
+                alert(message);
+            }
 
+            function showErrorMessage(message) {
+                alert(message);
+            }
+
+            <% if (request.getAttribute("successMessage") != null) { %>
+            showSuccessMessage("<%= request.getAttribute("successMessage") %>");
+            <% } %>
+
+            <% if (request.getAttribute("errorMessage") != null) { %>
+            showErrorMessage("<%= request.getAttribute("errorMessage") %>");
+            <% } %>
         </script>
+    </script>
 
 
 
-    </body>
+</body>
 </html>
