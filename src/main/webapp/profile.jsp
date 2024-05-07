@@ -51,26 +51,29 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container nav-container">
-                <a class="navbar-brand" href="#">My Profile</a>
+                <c:if test="${not empty dashboardURL}">
+                    <a class="navbar-brand" href="${dashboardURL}">My Profile</a>
+                </c:if>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <c:if test="${not empty dashboardURL}">
-                            <li class="nav-item"><a class="nav-link" href="${dashboardURL}">Dashboard</a></li>
-                            </c:if>
+
                         <li class="nav-item"><a class="nav-link" href="/EquipmentController">Reservation</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Reservations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Booking Record</a></li>
                         <li class="nav-item"><a class="nav-link" href="/WishlistController">My Wishlist</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Notifications</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/NotificationController">Notification</a></li>
                         <li class="nav-item"><a class="nav-link" href="/ProfileController">Profile</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="main?action=logout">Logout</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
         <div class="container mt-4">
-            
+
             <h2 class="text-center mb-4">My Profile</h2>
             <div class="container2">
                 <c:if test="${not empty userProfile}">
@@ -92,7 +95,7 @@
                 </c:if>
             </div>
 
-            <!-- Bootstrap JS Bundle -->
+
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
             <script>
                 function showSuccessMessage(message) {

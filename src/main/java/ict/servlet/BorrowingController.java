@@ -35,6 +35,7 @@ public class BorrowingController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        
         if ("returnEquipment".equals(action)) {
             try {
                 db.returnEquipment(request);
@@ -50,7 +51,6 @@ public class BorrowingController extends HttpServlet {
         HttpSession session = request.getSession();
         UserBean user = (UserBean) session.getAttribute("userBean");
 
-        // Set dashboard URL at the very beginning
         String dashboardURL = getDashboardURL(request);
         request.setAttribute("dashboardURL", dashboardURL);
 
@@ -75,12 +75,12 @@ public class BorrowingController extends HttpServlet {
             UserBean user = (UserBean) session.getAttribute("userBean");
             if (user != null) {
                 switch (user.getRole()) {
-                    case "Admin":
-                        return "/admin_dashboard.jsp";
+                    case "AdminTechnician":
+                        return "/AdminController";
                     case "Technician":
-                        return "/technician_dashboard.jsp";
+                        return "/TechDashboard";
                     case "Courier":
-                        return "/courier_dashboard.jsp";
+                        return "/CourierControllor";
                     case "Staff":
                         return "/StaffDashboard";
                     default:

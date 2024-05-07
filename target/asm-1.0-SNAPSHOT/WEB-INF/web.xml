@@ -23,4 +23,7 @@
     <welcome-file-list>
         <welcome-file>login.jsp</welcome-file>
     </welcome-file-list>
+    <listener>
+        <listener-class>ict.servlet.AppContextListener</listener-class>
+    </listener>
 </web-app>

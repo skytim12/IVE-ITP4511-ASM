@@ -44,6 +44,10 @@
                 background-color: #EEEEEE;
             }
 
+            .container2{
+                min-height: 70vh;
+            }
+
             .container h2{
                 padding: 10px;
             }
@@ -68,13 +72,13 @@
                             <a class="nav-link" href="/EquipmentController">Reservation</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/BorrowingController">My Reservations Record</a>
+                            <a class="nav-link" href="/BorrowingController">My Booking Record</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/WishlistController">My WishList</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/#">Notification</a>
+                            <a class="nav-link" href="/NotificationController">Notification</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/ProfileController">Profile</a>
@@ -87,10 +91,10 @@
             </div>
         </nav>
 
-        <div class="container">
+        <div class="container container2">
             <h2 class="text-center my-4">Reservable Equipment List</h2>
             <table class="table">
-                 <thead class="thead-dark">
+                <thead class="thead-dark">
                     <tr>
                         <th>Name</th>
                         <th>Available</th>

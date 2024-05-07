@@ -1,5 +1,6 @@
 package ict.bean;
 
+import java.sql.Date;
 import java.util.List;
 
 public class ReservationBean {
@@ -12,6 +13,7 @@ public class ReservationBean {
     private String status;
     private List<EquipmentBean> equipmentList;
     private String toCampus;
+    private Date returnDate;
 
     public ReservationBean() {
     }
@@ -87,5 +89,13 @@ public class ReservationBean {
 
     public void setEquipmentList(List<EquipmentBean> equipmentList) {
         this.equipmentList = equipmentList;
+    }
+
+    public Date getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(Date returnDate) {
+        this.returnDate = returnDate;
     }
 }

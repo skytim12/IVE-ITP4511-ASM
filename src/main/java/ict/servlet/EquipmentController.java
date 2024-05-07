@@ -64,6 +64,7 @@ public class EquipmentController extends HttpServlet {
         } else if ("confirmCart".equals(action)) {
             try {
                 confirmCart(request);
+                 request.setAttribute("successMessage", "Record add successfully.");
             } catch (SQLException ex) {
                 Logger.getLogger(EquipmentController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -199,17 +200,15 @@ public class EquipmentController extends HttpServlet {
                     throw new SQLException("Failed to create a reservation record.");
                 }
 
-                
                 for (ItemBean item : cart) {
                     List<String> equipmentIDs = db.fetchEquipmentIDsForReservation(item.getName(), item.getQuantity(), item.getCampusName());
                     for (String equipmentID : equipmentIDs) {
-                      
+
                         boolean equipmentReserved = db.addReservationEquipment(reservationID, equipmentID);
                         if (!equipmentReserved) {
                             throw new SQLException("Failed to link equipment to reservation.");
                         }
 
-                      
                         boolean availabilityUpdated = db.setEquipmentUnavailable(equipmentID);
                         if (!availabilityUpdated) {
                             throw new SQLException("Failed to update equipment availability.");
@@ -219,23 +218,22 @@ public class EquipmentController extends HttpServlet {
 
                 }
 
-               
                 boolean borrowingRecordAdded = db.addBorrowingRecord(reservationID, new java.util.Date()); // using current date as borrow date
                 if (!borrowingRecordAdded) {
                     throw new SQLException("Failed to add borrowing record.");
                 }
 
-                conn.commit();  
-                session.removeAttribute("cart"); 
+                conn.commit();
+                session.removeAttribute("cart");
                 request.setAttribute("successMessage", "Transaction successful and cart confirmed.");
             } catch (SQLException ex) {
                 if (conn != null) {
-                    conn.rollback(); 
+                    conn.rollback();
                 }
                 request.setAttribute("errorMessage", "Failed to process cart: " + ex.getMessage());
             } finally {
                 if (conn != null) {
-                    conn.setAutoCommit(true);  
+                    conn.setAutoCommit(true);
                     conn.close();
                 }
             }
@@ -269,18 +267,18 @@ public class EquipmentController extends HttpServlet {
             UserBean user = (UserBean) session.getAttribute("userBean");
             if (user != null) {
                 switch (user.getRole()) {
-                    case "Admin":
-                        return "/admin_dashboard.jsp";
+                    case "AdminTechnician":
+                        return "/AdminController";
                     case "Technician":
-                        return "/technician_dashboard.jsp";
+                        return "/TechDashboard";
                     case "Courier":
-                        return "/courier_dashboard.jsp";
+                        return "/CourierControllor";
                     case "Staff":
                         return "/StaffDashboard";
                     default:
                         return "/UserDashboard";
                 }
-            }
+            }   
         }
         return "";
     }

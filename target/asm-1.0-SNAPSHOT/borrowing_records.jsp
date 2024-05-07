@@ -41,6 +41,10 @@
                 padding: 10px;
             }
 
+            .container2{
+                min-height: 70vh;
+            }
+
             .table {
                 border-radius: 10px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -50,25 +54,27 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container nav-container">
-                <a class="navbar-brand" href="#">Borrowing Records</a>
+                <c:if test="${not empty dashboardURL}">
+                    <a class="navbar-brand" href="${dashboardURL}">Borrowing Records</a>
+                </c:if>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <c:if test="${not empty dashboardURL}">
-                            <li class="nav-item"><a class="nav-link" href="${dashboardURL}">Dashboard</a></li>
-                            </c:if>
                         <li class="nav-item"><a class="nav-link" href="/EquipmentController">Reservation</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Reservations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Booking Record</a></li>
                         <li class="nav-item"><a class="nav-link" href="/WishlistController">My Wishlist</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Notifications</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/NotificationController">Notification</a></li>
                         <li class="nav-item"><a class="nav-link" href="/ProfileController">Profile</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="main?action=logout">Logout</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
-        <div class="container">
+        <div class="container container2">
             <h2 class="my-4 text-center">My Borrowing Records</h2>
 
             <table class="table table-hover">
@@ -97,7 +103,7 @@
                                     <c:otherwise>Not Returned</c:otherwise>
                                 </c:choose>
                             </td>
-                           
+
                             <td><button type="button" class="btn btn-info" onclick="toggleDetails(${status.index});">Toggle Details</button></td>
                         </tr>
                         <tr id="details${status.index}" style="display:none;">
@@ -105,6 +111,7 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
+                                            <th>Equipment ID</th>
                                             <th>Name</th>
                                             <th>Description</th>
                                             <th>Campus Name</th>
@@ -117,6 +124,7 @@
                                     <tbody>
                                         <c:forEach var="equipment" items="${record.equipmentList}">
                                             <tr>
+                                                <td>${equipment.equipmentID}</td>
                                                 <td>${equipment.name}</td>
                                                 <td>${equipment.description}</td>
                                                 <td>${equipment.campusName}</td>
@@ -129,6 +137,7 @@
                                                         <form action="/BorrowingController" method="post" class="d-inline">
                                                             <input type="hidden" name="action" value="returnEquipment"/>
                                                             <input type="hidden" name="recordID" value="${record.recordID}"/>
+                                                            <input type="hidden" name="reservationID" value="${record.reservationID}"/>
                                                             <input type="hidden" name="equipmentID" value="${equipment.equipmentID}"/>
                                                             <button type="submit" class="btn btn-primary">Return Equipment</button>
                                                         </form></td>
@@ -143,17 +152,33 @@
                 </tbody>
             </table>
         </div>
-        <!-- Bootstrap JS Bundle -->
+        
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
         <script>
-                                        function toggleDetails(index) {
-                                            var row = document.getElementById('details' + index);
-                                            if (row.style.display === 'none') {
-                                                row.style.display = '';
-                                            } else {
-                                                row.style.display = 'none';
-                                            }
-                                        }
+                                function toggleDetails(index) {
+                                    var row = document.getElementById('details' + index);
+                                    if (row.style.display === 'none') {
+                                        row.style.display = '';
+                                    } else {
+                                        row.style.display = 'none';
+                                    }
+                                }
+
+                                function showSuccessMessage(message) {
+                                    alert(message);
+                                }
+
+                                function showErrorMessage(message) {
+                                    alert(message);
+                                }
+
+            <% if (request.getAttribute("successMessage") != null) { %>
+                                showSuccessMessage("<%= request.getAttribute("successMessage") %>");
+            <% } %>
+
+            <% if (request.getAttribute("errorMessage") != null) { %>
+                                showErrorMessage("<%= request.getAttribute("errorMessage") %>");
+            <% } %>
         </script>
     </body>
 </html>

@@ -41,6 +41,9 @@
             .container h2 {
                 padding: 10px;
             }
+            .container2{
+                min-height: 70vh;
+            }
             .table {
                 border-radius: 10px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -50,26 +53,28 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container nav-container">
-                <a class="navbar-brand" href="#">Equipment List</a>
+                <c:if test="${not empty dashboardURL}">
+                    <a class="navbar-brand" href="${dashboardURL}">Equipment List</a>
+                </c:if>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <c:if test="${not empty dashboardURL}">
-                            <li class="nav-item"><a class="nav-link" href="${dashboardURL}">Dashboard</a></li>
-                            </c:if>
                         <li class="nav-item"><a class="nav-link" href="/EquipmentController">Reservation</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Reservations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/BorrowingController">My Booking Record</a></li>
                         <li class="nav-item"><a class="nav-link" href="/WishlistController">My Wishlist</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Notifications</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="/NotificationController">Notification</a></li>
                         <li class="nav-item"><a class="nav-link" href="/ProfileController">Profile</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="main?action=logout">Logout</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <div class="container">
+        <div class="container container2">
             <h2 class="text-center my-4">Equipment List</h2>
             <table class="table table-striped">
                 <thead>
@@ -281,7 +286,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="cartQuantity" class="form-label">Quantity:</label>
-                                <input type="number" class="form-control" id="cartQuantity" name="quantity" min="1">
+                                <input type="number" class="form-control" id="cartQuantity" name="quantity" min="1" value="1">
                             </div>
                         </form>
                     </div>
@@ -300,10 +305,10 @@
                 var wishlistModal = new bootstrap.Modal(document.getElementById('wishlistModal'));
                 var cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
 
-                // Attach click event to Wishlist buttons
+                
                 document.querySelectorAll('.wishlistBtn').forEach(btn => {
                     btn.addEventListener('click', function () {
-                        // Populate the wishlist form fields
+                       
                         var equipmentIDs = this.getAttribute('data-id').split(',');
                         var select = document.getElementById('equipmentID');
                         select.innerHTML = '';
@@ -327,10 +332,10 @@
                     });
                 });
 
-                // Attach click event to Cart buttons
+               
                 document.querySelectorAll('.cartBtn').forEach(btn => {
                     btn.addEventListener('click', function () {
-                        // Populate the cart form fields
+                        
                         document.getElementById('cartName').value = this.dataset.name;
                         document.getElementById('cartAvailable').value = this.dataset.available;
                         document.getElementById('cartCampus').value = this.dataset.campus;
@@ -339,7 +344,7 @@
                         document.getElementById('cartTotal').value = this.dataset.total;
                         document.getElementById('cartExclusiveForStaff').value = this.dataset.exclusive;
 
-                        // Set the minimum date for reservation to today's date
+                       
                         const today = new Date().toISOString().split('T')[0];
                         document.getElementById('cartReservedFrom').setAttribute('min', today);
                         document.getElementById('cartReservedTo').setAttribute('min', today);

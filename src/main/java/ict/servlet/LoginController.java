@@ -19,7 +19,7 @@ public class LoginController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        // Initialize AsmDB with context parameters
+        
         String dbUrl = getServletContext().getInitParameter("dbUrl");
         String dbUser = getServletContext().getInitParameter("dbUser");
         String dbPassword = getServletContext().getInitParameter("dbPassword");
@@ -80,8 +80,8 @@ public class LoginController extends HttpServlet {
             case "AdminTechnician": return "/AdminController";
             case "Technician": return "/TechDashboard";
             case "Courier": return "/CourierControllor";
-            case "Staff": return "/StaffDashboard";
-            default: return "/UserDashboard";
+            default: return "/NotificationController";
         }
     }
 }
+    

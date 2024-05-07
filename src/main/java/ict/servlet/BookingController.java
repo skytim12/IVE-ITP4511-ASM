@@ -66,16 +66,16 @@ public class BookingController extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         UserBean user = (UserBean) session.getAttribute("userBean");
-        
+
         if (user == null) {
             request.setAttribute("errorMessage", "You must be logged in to access this page.");
             request.getRequestDispatcher("/login_page.jsp").forward(request, response);
             return;
         }
-        
+
         String dashboardURL = getDashboardURL(request);
         request.setAttribute("dashboardURL", dashboardURL);
-        
+
         try {
             List<ReservationBean> reservations = db.fetchWaitingReservations(user.getCampusName());
             request.setAttribute("reservations", reservations);
@@ -91,14 +91,14 @@ public class BookingController extends HttpServlet {
             UserBean user = (UserBean) session.getAttribute("userBean");
             if (user != null) {
                 switch (user.getRole()) {
-                    case "Admin":
-                        return "/admin_dashboard.jsp";
+                    case "AdminTechnician":
+                        return "/AdminController";
                     case "Technician":
-                        return "/technician_dashboard.jsp";
+                        return "/TechDashboard";
                     case "Courier":
-                        return "/courier_dashboard.jsp";
+                        return "/CourierControllor";
                     case "Staff":
-                        return "/staff_dashboard.jsp";
+                        return "/StaffDashboard";
                     default:
                         return "/UserDashboard";
                 }

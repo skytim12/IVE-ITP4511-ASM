@@ -84,12 +84,12 @@ public class WishlistController extends HttpServlet {
             UserBean user = (UserBean) session.getAttribute("userBean");
             if (user != null) {
                 switch (user.getRole()) {
-                    case "Admin":
-                        return "/admin_dashboard.jsp";
+                    case "AdminTechnician":
+                        return "/AdminController";
                     case "Technician":
-                        return "/technician_dashboard.jsp";
+                        return "/TechDashboard";
                     case "Courier":
-                        return "/courier_dashboard.jsp";
+                        return "/CourierControllor";
                     case "Staff":
                         return "/StaffDashboard";
                     default:

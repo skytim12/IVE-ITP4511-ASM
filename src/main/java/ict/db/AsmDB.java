@@ -97,6 +97,7 @@ public class AsmDB {
                 "CREATE TABLE IF NOT EXISTS ReservationEquipment ("
                 + "ReservationID INT, "
                 + "EquipmentID VARCHAR(10), "
+                + "ReturnDate DATE, "
                 + "Status ENUM('Waiting','Reserved', 'Borrowed', 'Returned', 'Success', 'Error', 'Declined') DEFAULT 'Waiting',"
                 + "PRIMARY KEY (ReservationID, EquipmentID), "
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID), "
@@ -107,7 +108,6 @@ public class AsmDB {
                 + "RecordID INT AUTO_INCREMENT PRIMARY KEY, "
                 + "ReservationID INT, "
                 + "BorrowDate DATE, "
-                + "ReturnDate DATE, "
                 + "FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)"
                 + ")",
                 // Create Wishlist table
@@ -624,7 +624,7 @@ public class AsmDB {
 
     public List<BorrowingRecordsBean> fetchBorrowingRecords(String userID) throws SQLException, IOException {
         List<BorrowingRecordsBean> records = new ArrayList<>();
-        String sql = "SELECT br.RecordID, br.BorrowDate, br.ReturnDate, r.ReservationID, "
+        String sql = "SELECT br.RecordID, br.BorrowDate, re.ReturnDate, r.ReservationID, "
                 + "GROUP_CONCAT(DISTINCT e.Name SEPARATOR '&') AS EquipmentNames, COUNT(re.EquipmentID) AS TotalQuantity "
                 + "FROM BorrowingRecords br "
                 + "JOIN Reservation r ON br.ReservationID = r.ReservationID "
@@ -632,7 +632,7 @@ public class AsmDB {
                 + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
                 + "LEFT JOIN Delivery d ON r.ReservationID = d.ReservationID "
                 + "WHERE r.UserID = ? "
-                + "GROUP BY br.RecordID, br.BorrowDate, br.ReturnDate, r.ReservationID "
+                + "GROUP BY br.RecordID, br.BorrowDate, re.ReturnDate, r.ReservationID "
                 + "ORDER BY r.ReservationID DESC";
 
         try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -645,7 +645,7 @@ public class AsmDB {
                 record.setReturnDate(rs.getDate("ReturnDate"));
                 record.setEquipmentNames(rs.getString("EquipmentNames"));
                 record.setTotalQuantity(rs.getInt("TotalQuantity"));
-                record.setReservationID(rs.getInt("ReservationID")); // Ensuring ReservationID is set
+                record.setReservationID(rs.getInt("ReservationID"));
                 record.setEquipmentList(fetchEquipmentListForReservation(rs.getInt("ReservationID"), conn)); // Fetching the equipment list
                 records.add(record);
             }
@@ -654,32 +654,25 @@ public class AsmDB {
     }
 
     public void returnEquipment(HttpServletRequest request) throws SQLException, IOException {
-        // Extract the record ID from the request
+
         String equipmentID = (request.getParameter("equipmentID"));
-        int recordID = Integer.parseInt(request.getParameter("recordID"));
+        int reservationID = Integer.parseInt(request.getParameter("reservationID"));
         Connection conn = null;
 
         try {
             conn = this.getConnection();
             conn.setAutoCommit(false);
 
-            String updateBorrowingRecordsSql = "UPDATE BorrowingRecords SET ReturnDate = CURRENT_DATE() WHERE RecordID = ? AND ReturnDate IS NULL";
+            String updateBorrowingRecordsSql = "UPDATE ReservationEquipment SET ReturnDate = CURRENT_DATE(), Status = 'Returned' "
+                    + "WHERE ReservationID = ? AND EquipmentID = ? AND ReturnDate IS NULL";
             try (PreparedStatement pstmt = conn.prepareStatement(updateBorrowingRecordsSql)) {
-                pstmt.setInt(1, recordID);
+                pstmt.setInt(1, reservationID);
+                pstmt.setString(2, equipmentID);
                 int updatedRows = pstmt.executeUpdate();
                 if (updatedRows == 0) {
                     throw new SQLException("No records updated, check if the record ID is correct and the equipment hasn't been returned yet.");
                 }
             }
-            updateBorrowingRecordsSql = "UPDATE ReservationEquipment SET  Status = 'Returned' WHERE equipmentID = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(updateBorrowingRecordsSql)) {
-                pstmt.setString(1, equipmentID);
-                int updatedRows = pstmt.executeUpdate();
-                if (updatedRows == 0) {
-                    throw new SQLException("No records updated, check if the record ID is correct and the equipment hasn't been returned yet.");
-                }
-            }
-
             conn.commit();
         } catch (SQLException ex) {
             if (conn != null) {
@@ -1484,6 +1477,78 @@ public class AsmDB {
             System.err.println("SQL Exception: " + e.getMessage());
             throw e;
         }
+    }
+
+    public List<NotificationBean> getNotifications(String userID) throws SQLException, IOException {
+        List<NotificationBean> notifications = new ArrayList<>();
+        String sql = "SELECT NotificationID, Message, ReadStatus, NotificationDate FROM Notifications WHERE UserID = ? ORDER BY NotificationDate DESC";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                NotificationBean notification = new NotificationBean();
+                notification.setNotificationID(rs.getInt("NotificationID"));
+                notification.setMessage(rs.getString("Message"));
+                notification.setReadStatus(rs.getString("ReadStatus"));
+                notification.setNotificationDate(rs.getTimestamp("NotificationDate"));
+                notifications.add(notification);
+            }
+        }
+        return notifications;
+    }
+
+    public boolean addNotification(String userID, String message) throws SQLException, IOException {
+        String sql = "INSERT INTO Notifications (UserID, Message, ReadStatus, NotificationDate) VALUES (?, ?, 'Unread', CURRENT_TIMESTAMP)";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userID);
+            pstmt.setString(2, message);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public boolean markAsRead(int notificationID) throws SQLException, IOException {
+        String sql = "UPDATE Notifications SET ReadStatus = 'Read' WHERE NotificationID = ?";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, notificationID);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public boolean markAllNotificationsAsRead(String userID) throws SQLException, IOException {
+        String query = "UPDATE Notifications SET ReadStatus = 'Read' WHERE UserID = ? AND ReadStatus = 'Unread'";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, userID);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            throw new SQLException("Error updating notifications: " + e.getMessage(), e);
+        }
+    }
+
+    public void checkOverdueItemsAndNotify() throws SQLException, IOException {
+        String query = "SELECT br.RecordID, r.UserID, e.Name as EquipmentName "
+                + "FROM BorrowingRecords br "
+                + "JOIN Reservation r ON br.ReservationID = r.ReservationID "
+                + "JOIN ReservationEquipment re ON r.ReservationID = re.ReservationID "
+                + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
+                + "WHERE re.ReturnDate IS NULL AND br.BorrowDate < CURDATE() AND re.Status = 'Borrowed'";
+        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int recordID = rs.getInt("RecordID");
+                String userID = rs.getString("UserID");
+                String equipmentName = rs.getString("EquipmentName");
+                sendOverdueNotification(recordID, userID, equipmentName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendOverdueNotification(int recordID, String userID, String equipmentName) throws SQLException, IOException {
+        String message = "The equipment '" + equipmentName + "' with record ID " + recordID + " is overdue. Please return it as soon as possible.";
+        addNotification(userID, message);
     }
 
 }
