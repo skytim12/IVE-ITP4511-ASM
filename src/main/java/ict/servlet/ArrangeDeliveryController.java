@@ -51,11 +51,15 @@ public class ArrangeDeliveryController extends HttpServlet {
         HttpSession session = request.getSession();
         UserBean user = (UserBean) session.getAttribute("userBean");
 
+        String dashboardURL = getDashboardURL(request);
+        request.setAttribute("dashboardURL", dashboardURL);
+
         if (user == null) {
             request.setAttribute("errorMessage", "You must be logged in to access this page.");
             request.getRequestDispatcher("/login_page.jsp").forward(request, response);
             return;
         }
+ 
 
         try {
             List<ReservationBean> reservations = db.fetchReservationsForDelivery(user.getCampusName());
@@ -75,6 +79,28 @@ public class ArrangeDeliveryController extends HttpServlet {
         String toCampus = request.getParameter("toCampus");
 
         db.addDelivery(reservationID, fromCampus, toCampus, "Scheduled");
+    }
+
+    private String getDashboardURL(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            UserBean user = (UserBean) session.getAttribute("userBean");
+            if (user != null) {
+                switch (user.getRole()) {
+                    case "AdminTechnician":
+                        return "/AdminController";
+                    case "Technician":
+                        return "/TechDashboard";
+                    case "Courier":
+                        return "/CourierControllor";
+                    case "Staff":
+                        return "/StaffDashboard";
+                    default:
+                        return "/UserDashboard";
+                }
+            }
+        }
+        return "";
     }
 
 }

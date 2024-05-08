@@ -4,7 +4,8 @@
  */
 package ict.servlet;
 
-import ict.bean.EquipmentBean;
+import ict.bean.NotificationBean;
+import ict.bean.UserBean;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,6 +16,8 @@ import ict.db.AsmDB;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,9 +37,11 @@ public class TechController extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        UserBean user = (UserBean) session.getAttribute("userBean");
         try {
-            List<EquipmentBean> equipmentList = db.UserfetchReservableEquipmentList();
-            request.setAttribute("equipmentList", equipmentList);
+            List<NotificationBean> notifications = db.getNotifications(user.getUserID());
+            request.setAttribute("notifications", notifications);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Error fetching equipment data: " + e.getMessage());
         }
@@ -45,11 +50,38 @@ public class TechController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+
+        HttpSession session = request.getSession();
+        UserBean user = (UserBean) session.getAttribute("userBean");
         switch (action) {
 
             case "logout":
                 doLogout(request, response);
                 break;
+            case "markAllRead": {
+                try {
+                    db.markAllNotificationsAsRead(user.getUserID());
+                    request.setAttribute("message", "All notifications marked as read.");
+                    response.sendRedirect("TechDashboard");
+                } catch (SQLException ex) {
+                    Logger.getLogger(TechController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            break;
+
+            case "markRead":
+                int notificationID = Integer.parseInt(request.getParameter("notificationID"));
+                 {
+                    try {
+                        db.markAsRead(notificationID);
+                        request.setAttribute("message", "Notification marked as read.");
+                        response.sendRedirect("TechDashboard");
+                    } catch (SQLException ex) {
+                        Logger.getLogger(TechController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                break;
+
             default:
                 response.sendRedirect("login.jsp");
                 break;

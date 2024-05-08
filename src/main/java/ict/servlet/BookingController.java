@@ -39,14 +39,18 @@ public class BookingController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String reservationID = request.getParameter("reservationID");
+        String equipmentID = request.getParameter("equipmentID");
+        HttpSession session = request.getSession();
+        UserBean user = (UserBean) session.getAttribute("userBean");
+
         try {
             switch (action) {
                 case "Accept":
-                    updateBorrowingRecordStatus(reservationID, "Reserved");
+                    updateBorrowingRecordStatus(reservationID, equipmentID, "Reserved");
                     request.setAttribute("successMessage", "Reservation accepted successfully.");
                     break;
                 case "Decline":
-                    updateBorrowingRecordStatus(reservationID, "Declined");
+                    updateBorrowingRecordStatus(reservationID, equipmentID, "Declined");
                     request.setAttribute("successMessage", "Reservation declined successfully.");
                     break;
                 default:
@@ -59,8 +63,8 @@ public class BookingController extends HttpServlet {
         processRequest(request, response);
     }
 
-    private void updateBorrowingRecordStatus(String reservationID, String status) throws SQLException, IOException {
-        db.updateReservationEquipmentRecordStatus(reservationID, status);
+    private void updateBorrowingRecordStatus(String reservationID, String equipmentID, String status) throws SQLException, IOException {
+        db.updateReservationEquipmentRecordStatus(reservationID, equipmentID, status);
     }
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

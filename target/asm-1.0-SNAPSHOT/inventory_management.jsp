@@ -1,8 +1,3 @@
-<%-- 
-    Document   : inventory_management
-    Created on : 2024年4月8日, 上午6:33:08
-    Author     : Soman 
---%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="/WEB-INF/tlds/ict-taglib.tld" prefix="ict" %>
@@ -46,6 +41,14 @@
                 margin-top: 50px;
                 background-color: #EEEEEE;
             }
+            
+              .container2{
+                min-height: 70vh;
+            }
+
+            .dropdown-item{
+                font-size: 20px !important;
+            }
 
             .container h2{
                 padding: 10px;
@@ -56,41 +59,45 @@
             }
 
         </style>
-    </head>
+    </head>Inventory Management
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light">
+         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container nav-container">
-                <a class="navbar-brand" href="/TechDashboard">Inventory Management</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavInventory" aria-controls="navbarNavInventory" aria-expanded="false" aria-label="Toggle navigation">
+                 <c:if test="${not empty dashboardURL}">
+                    <a class="navbar-brand" href="${dashboardURL}">Inventory Management</a>
+                </c:if>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTech" aria-controls="navbarTech" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNavInventory">
-                    <ul class="navbar-nav">
-                       
-                        <li class="nav-item">
-                            <a class="nav-link" href="/InventoryController">Show Inventory</a>
+                <div class="collapse navbar-collapse" id="navbarTech">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manage Inventory
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="/InventoryController">Show Inventory</a></li>
+                                <li><a class="dropdown-item" href="/CheckInController">Check In</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/BookingController">Manage Bookings</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="bookingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manage Bookings
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="/BookingController">Manage Bookings</a></li>
+                                <li><a class="dropdown-item" href="/BookingDetailController">All Booking Records</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/ArrangeDeliveryController">Arrange Delivery</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/CheckInController">Check In</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/ProfileController">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="main?action=logout">Logout</a>
-                        </li>
+
+                        <li class="nav-item"><a class="nav-link" href="/ArrangeDeliveryController">Arrange Delivery</a></li>
+                        <li class="nav-item"><a class="nav-link" href="main?action=logout">Logout</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <div class="container mt-5">
+        <div class="container mt-5 container2">
 
             <h2 class="text-center my-4">Inventory Managementt</h2>
 

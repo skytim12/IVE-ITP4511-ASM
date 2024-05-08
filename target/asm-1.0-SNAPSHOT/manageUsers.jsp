@@ -7,9 +7,96 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     </head>
+    <style>
+
+        body {
+            background-color: #222831;
+        }
+
+        .nav-container{
+            background-color: #76ABAE !important;
+        }
+
+        .navbar-brand{
+            font-size: 28px !important;
+            font-weight: 500;
+        }
+
+        .navbar-nav .nav-link {
+            font-size: 20px !important;
+            font-weight: 500;
+        }
+
+        .nav-item{
+            padding-right: 20px
+        }
+
+        .navbar {
+            background-color: #76ABAE;
+        }
+        .container {
+            margin-top: 50px;
+            background-color: #EEEEEE;
+        }
+
+        .container2{
+            min-height: 70vh;
+        }
+
+        .dropdown-item{
+            font-size: 20px !important;
+        }
+
+        .container h2{
+            padding: 10px;
+        }
+        .table {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
     <body>
-        <div class="container mt-4">
-            <h1>User Management</h1>
+
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container nav-container">
+
+                <c:if test="${not empty dashboardURL}">
+                    <a class="navbar-brand" href="${dashboardURL}">Reservation Review</a>
+                </c:if>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTech" aria-controls="navbarTech" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTech">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manage Inventory
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="/InventoryController">Show Inventory</a></li>
+                                <li><a class="dropdown-item" href="/CheckInController">Check In</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="bookingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manage Bookings
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="/BookingController">Reservation Review</a></li>
+                                <li><a class="dropdown-item" href="/BookingDetailController">All Booking Records</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item"><a class="nav-link" href="/ArrangeDeliveryController">Arrange Delivery</a></li>
+                        <li class="nav-item"><a class="nav-link" href="main?action=logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="container container2 mt-4">
+             <h2 class="text-center my-4">User Management</h2>
             <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Add New User</button>
             <table class="table table-striped">
                 <thead>
@@ -31,7 +118,7 @@
                             <td>${user.role}</td>
                             <td>${user.campusName}</td>
                             <td>
-                                <!-- Trigger modal with JavaScript -->
+
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#editUserModal${user.userID}">Edit</button>
                                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal${user.userID}" data-user-id="${user.userID}">Change Password</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal${user.userID}">Delete</button>

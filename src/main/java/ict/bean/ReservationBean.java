@@ -14,6 +14,7 @@ public class ReservationBean {
     private List<EquipmentBean> equipmentList;
     private String toCampus;
     private Date returnDate;
+    private String address;
 
     public ReservationBean() {
     }
@@ -81,6 +82,14 @@ public class ReservationBean {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+     public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public List<EquipmentBean> getEquipmentList() {

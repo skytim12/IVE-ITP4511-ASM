@@ -83,9 +83,10 @@ public class CheckInController extends HttpServlet {
         String reportedBy = user.getUserID();
         java.util.Date today = new java.util.Date();
         java.sql.Timestamp reportDate = new java.sql.Timestamp(today.getTime());
+        HttpSession session = request.getSession();
 
         try {
-            boolean success = db.reportDamage(reservationID, equipmentID, description, reportedBy, reportDate);
+            boolean success = db.reportDamage(reservationID, equipmentID, description, reportedBy, reportDate,user.getCampusName());
             if (success) {
                 request.setAttribute("successMessage", "Damage reported successfully.");
             } else {
@@ -100,6 +101,9 @@ public class CheckInController extends HttpServlet {
         HttpSession session = request.getSession();
         UserBean user = (UserBean) session.getAttribute("userBean");
 
+        String dashboardURL = getDashboardURL(request);
+        request.setAttribute("dashboardURL", dashboardURL);
+
         try {
             List<DeliveryBean> deliveries = db.fetchAllDeliveries(user.getCampusName());
             request.setAttribute("deliveries", deliveries);
@@ -107,5 +111,27 @@ public class CheckInController extends HttpServlet {
             request.setAttribute("errorMessage", "Database error: " + ex.getMessage());
         }
         request.getRequestDispatcher("/checkin.jsp").forward(request, response);
+    }
+
+    private String getDashboardURL(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            UserBean user = (UserBean) session.getAttribute("userBean");
+            if (user != null) {
+                switch (user.getRole()) {
+                    case "AdminTechnician":
+                        return "/AdminController";
+                    case "Technician":
+                        return "/TechDashboard";
+                    case "Courier":
+                        return "/CourierControllor";
+                    case "Staff":
+                        return "/StaffDashboard";
+                    default:
+                        return "/UserDashboard";
+                }
+            }
+        }
+        return "";
     }
 }

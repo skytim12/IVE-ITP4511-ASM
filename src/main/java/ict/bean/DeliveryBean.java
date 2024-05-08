@@ -23,6 +23,7 @@ public class DeliveryBean {
     private String status;
     private String userName;
     private List<EquipmentBean> equipmentList;
+    private String address;
 
     public DeliveryBean() {
     }
@@ -124,5 +125,13 @@ public class DeliveryBean {
 
     public void setEquipmentList(List<EquipmentBean> equipmentList) {
         this.equipmentList = equipmentList;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

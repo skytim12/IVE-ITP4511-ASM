@@ -79,7 +79,7 @@ public class LoginController extends HttpServlet {
         switch (role) {
             case "AdminTechnician": return "/AdminController";
             case "Technician": return "/TechDashboard";
-            case "Courier": return "/CourierControllor";
+            case "Courier": return "/DeliveryController";
             default: return "/NotificationController";
         }
     }

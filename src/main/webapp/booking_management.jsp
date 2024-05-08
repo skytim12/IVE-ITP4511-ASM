@@ -16,6 +16,22 @@
                     detailsRow.style.display = 'none';
                 }
             }
+
+            function showSuccessMessage(message) {
+                alert(message);
+            }
+
+            function showErrorMessage(message) {
+                alert(message);
+            }
+
+            <% if (request.getAttribute("successMessage") != null) { %>
+            showSuccessMessage("<%= request.getAttribute("successMessage") %>");
+            <% } %>
+
+            <% if (request.getAttribute("errorMessage") != null) { %>
+            showErrorMessage("<%= request.getAttribute("errorMessage") %>");
+            <% } %>
         </script>
         <style>
 
@@ -49,6 +65,14 @@
                 background-color: #EEEEEE;
             }
 
+            .container2{
+                min-height: 70vh;
+            }
+
+            .dropdown-item{
+                font-size: 20px !important;
+            }
+
             .container h2{
                 padding: 10px;
             }
@@ -63,26 +87,43 @@
 
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container nav-container">
-                <a class="navbar-brand" href="/TechDashboard">Booking Management</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+                <c:if test="${not empty dashboardURL}">
+                    <a class="navbar-brand" href="${dashboardURL}">Reservation Review</a>
+                </c:if>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTech" aria-controls="navbarTech" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link" href="/InventoryController">Inventory Management</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/BookingDetailController">All Booking Record</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/ArrangeDeliveryController">Arrange Delivery</a></li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/CheckInController">Check In</a>
+                <div class="collapse navbar-collapse" id="navbarTech">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="inventoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manage Inventory
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="/InventoryController">Show Inventory</a></li>
+                                <li><a class="dropdown-item" href="/CheckInController">Check In</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="damage_report_management.jsp">Damage Reports</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="bookingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Manage Bookings
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="bookingDropdown">
+                                <li><a class="dropdown-item" href="/BookingController">Reservation Review</a></li>
+                                <li><a class="dropdown-item" href="/BookingDetailController">All Booking Records</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item"><a class="nav-link" href="/ArrangeDeliveryController">Arrange Delivery</a></li>
+                        <li class="nav-item"><a class="nav-link" href="main?action=logout">Logout</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <div class="container mt-4">
-            <h2 class="mb-3">Booking Management</h2>
+        <div class="container mt-4 container2">
+            <h2 class="text-center my-4">Booking Management</h2>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
@@ -105,10 +146,11 @@
                             <td><button type="button" class="btn btn-info" onclick="toggleDetails(${status.index});">Toggle Details</button></td>
                         </tr>
                         <tr id="details${status.index}" style="display:none;">
-                            <td colspan="6">
+                            <td colspan="7">
                                 <table class="table">
                                     <thead>
                                         <tr>
+                                            <th>Equipment ID</th>
                                             <th>Name</th>
                                             <th>Description</th>
                                             <th>Campus Name</th>
@@ -122,6 +164,7 @@
                                     <tbody>
                                         <c:forEach var="equipment" items="${reservation.equipmentList}">
                                             <tr>
+                                                <td>${equipment.equipmentID}</td>
                                                 <td>${equipment.name}</td>
                                                 <td>${equipment.description}</td>
                                                 <td>${equipment.campusName}</td>
@@ -132,6 +175,7 @@
                                                 <td>
                                                     <form action="BookingController" method="post">
                                                         <input type="hidden" name="reservationID" value="${reservation.reservationID}" />
+                                                        <input type="hidden" name="equipmentID" value="${equipment.equipmentID}" />
                                                         <button type="submit" name="action" value="Accept" class="btn btn-success btn-sm">Accept</button>
                                                         <button type="submit" name="action" value="Decline" class="btn btn-danger btn-sm">Decline</button>
                                                     </form>
@@ -147,7 +191,7 @@
             </table>
         </div>
 
-        <!-- Bootstrap JS Bundle -->
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" defer></script>
     </body>
 </html>

@@ -5,7 +5,7 @@ public class CampusStats {
     private String campusName;
     private int totalCheckOuts;
 
-    // Constructors
+   
     public CampusStats() {
     }
 
@@ -14,7 +14,7 @@ public class CampusStats {
         this.totalCheckOuts = totalCheckOuts;
     }
 
-    // Getters and Setters
+  
     public String getCampusName() {
         return campusName;
     }

@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Servlet to handle inventory operations.
- */
 @WebServlet(name = "InventoryController", urlPatterns = {"/InventoryController"})
 public class InventoryController extends HttpServlet {
 
@@ -25,8 +22,7 @@ public class InventoryController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        super.init();
-        // Initialize database connection parameters from servlet context
+        super.init(); // Initialize database connection parameters from servlet context
         String dbUrl = getServletContext().getInitParameter("dbUrl");
         String dbUser = getServletContext().getInitParameter("dbUser");
         String dbPassword = getServletContext().getInitParameter("dbPassword");
@@ -47,35 +43,32 @@ public class InventoryController extends HttpServlet {
         String action = request.getParameter("action");
         if (action != null) {
             switch (action) {
-                case "update":
-                {
+                case "update": {
                     try {
                         updateEquipment(request, response);
                     } catch (SQLException ex) {
                         Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                    break;
+                break;
 
-                case "delete":
-                {
+                case "delete": {
                     try {
                         deleteEquipment(request, response);
                     } catch (SQLException ex) {
                         Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                    break;
+                break;
 
-                case "add":
-                {
+                case "add": {
                     try {
                         addEquipment(request, response);
                     } catch (SQLException ex) {
                         Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                    break;
+                break;
 
                 default:
                     request.setAttribute("errorMessage", "Invalid action.");
@@ -170,8 +163,9 @@ public class InventoryController extends HttpServlet {
             return;
         }
 
+        String dashboardURL = getDashboardURL(request);
+        request.setAttribute("dashboardURL", dashboardURL);
 
-        
         String newEquipmentID = db.generateUniqueEquipmentID();
         request.setAttribute("newEquipmentID", newEquipmentID);
 
@@ -185,5 +179,26 @@ public class InventoryController extends HttpServlet {
         }
     }
 
+    private String getDashboardURL(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            UserBean user = (UserBean) session.getAttribute("userBean");
+            if (user != null) {
+                switch (user.getRole()) {
+                    case "AdminTechnician":
+                        return "/AdminController";
+                    case "Technician":
+                        return "/TechDashboard";
+                    case "Courier":
+                        return "/CourierControllor";
+                    case "Staff":
+                        return "/StaffDashboard";
+                    default:
+                        return "/UserDashboard";
+                }
+            }
+        }
+        return "";
+    }
 
 }

@@ -31,10 +31,85 @@
             showErrorMessage("<%= request.getAttribute("errorMessage") %>");
             <% } %>
         </script>
+        <style>
+
+            body {
+                background-color: #222831;
+            }
+
+            .nav-container{
+                background-color: #76ABAE !important;
+            }
+
+            .navbar-brand{
+                font-size: 28px !important;
+                font-weight: 500;
+            }
+
+            .navbar-nav .nav-link {
+                font-size: 20px !important;
+                font-weight: 500;
+            }
+
+            .nav-item{
+                padding-right: 20px
+            }
+
+            .navbar {
+                background-color: #76ABAE;
+            }
+            .container {
+                margin-top: 50px;
+                background-color: #EEEEEE;
+            }
+
+            .container h2{
+                padding: 10px;
+            }
+
+            .container2{
+                min-height: 70vh;
+            }
+
+            .dropdown-item{
+                font-size: 20px !important;
+            }
+
+            .table {
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .btn1{
+                margin-bottom: 20px;
+                padding: 10px 10px;
+            }
+
+        </style>
     </head>
     <body>
-        <div class="container mt-4">
-            <h1>Delivery Management</h1>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container nav-container">
+                <a class="navbar-brand" href="#">Delivery List</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/DeliveryController">Delivery Schedule</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/UpdateDeliveryStatusController">Delivery List</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="main?action=logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container container2 mt-4">
+            <h2 class="text-center my-4">Delivery List</h2>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
@@ -62,9 +137,9 @@
                             </td>
                             <td><button type="button" class="btn btn-info" onclick="toggleDetails(${status.index});">Toggle Details</button></td>
                         </tr>
-                        <!-- Hidden row for displaying detailed equipment info -->
+
                         <tr id="details${status.index}" class="collapse">
-                            <td colspan="6">
+                            <td colspan="7">
                                 <table class="table">
                                     <thead>
                                         <tr>
@@ -72,6 +147,7 @@
                                             <th>Name</th>
                                             <th>Description</th>
                                             <th>Condition</th>
+                                            <th>Address</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -81,6 +157,7 @@
                                                 <td>${item.name}</td>
                                                 <td>${item.description}</td>
                                                 <td>${item.condition}</td>
+                                                <td>${delivery.address}</td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
