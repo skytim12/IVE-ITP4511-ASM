@@ -1620,7 +1620,7 @@ public class AsmDB {
                 + "JOIN Reservation r ON br.ReservationID = r.ReservationID "
                 + "JOIN ReservationEquipment re ON r.ReservationID = re.ReservationID "
                 + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
-                + "WHERE re.ReturnDate IS NULL AND br.BorrowDate < CURDATE() AND re.Status = 'Borrowed'";
+                + "WHERE re.ReturnDate IS NULL AND r.ReservedTo < CURDATE() AND re.Status = 'Borrowed'";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 int recordID = rs.getInt("RecordID");
