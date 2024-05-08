@@ -74,7 +74,7 @@
         </style>
     </head>
     <body>
-         <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container nav-container">
                 <a class="navbar-brand" href="#">Delivery Schedule</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,7 +93,7 @@
                 </div>
             </div>
         </nav>
-        
+
         <div class="container container2 mt-4">
             <h2 class="text-center my-4">Delivery Management</h2>
             <table class="table table-striped table-hover">
@@ -134,6 +134,7 @@
                                             <th>Equipment ID</th>
                                             <th>Name</th>
                                             <th>Description</th>
+                                            <th>Destination Campus</th>
                                             <th>Condition</th>
                                             <th>Address</th>
                                         </tr>
@@ -144,6 +145,7 @@
                                                 <td>${item.equipmentID}</td>
                                                 <td>${item.name}</td>
                                                 <td>${item.description}</td>
+                                                <td>${delivery.toCampus}</td>
                                                 <td>${item.condition}</td>
                                                 <td>${delivery.address}</td>
                                             </tr>

@@ -81,8 +81,7 @@
                 <thead>
                     <tr>
                         <th>Record ID</th>
-                        <th>Equipment Name</th>
-                        <th>Quantity</th>
+                        <th>Equipment Name</th>     
                         <th>Borrow Date</th>
                         <th>Return Date</th>
                         <th>Action</th>
@@ -92,8 +91,7 @@
                     <c:forEach var="record" items="${borrowingRecords}" varStatus="status">
                         <tr>
                             <td>${record.recordID}</td>
-                            <td>${record.equipmentNames}</td>
-                            <td>${record.totalQuantity}</td>
+                            <td>${record.equipmentNames}</td>      
                             <td><fmt:formatDate value="${record.borrowDate}" pattern="yyyy-MM-dd"/></td>
                             <td>
                                 <c:choose>

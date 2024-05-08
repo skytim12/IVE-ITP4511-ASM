@@ -53,6 +53,7 @@ public class DeliveryController extends HttpServlet {
         HttpSession session = request.getSession();
         UserBean user = (UserBean) session.getAttribute("userBean");
         try {
+            
             List<DeliveryBean> deliveries = db.fetchActiveDeliveries(user.getCampusName());
             request.setAttribute("deliveries", deliveries);
         } catch (SQLException ex) {

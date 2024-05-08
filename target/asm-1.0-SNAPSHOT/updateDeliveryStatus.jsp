@@ -146,6 +146,7 @@
                                             <th>Equipment ID</th>
                                             <th>Name</th>
                                             <th>Description</th>
+                                            <th>Destination Campus</th>
                                             <th>Condition</th>
                                             <th>Address</th>
                                         </tr>
@@ -156,6 +157,7 @@
                                                 <td>${item.equipmentID}</td>
                                                 <td>${item.name}</td>
                                                 <td>${item.description}</td>
+                                                <td>${delivery.toCampus}</td>
                                                 <td>${item.condition}</td>
                                                 <td>${delivery.address}</td>
                                             </tr>

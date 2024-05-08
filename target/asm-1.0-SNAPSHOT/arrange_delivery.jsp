@@ -185,6 +185,8 @@
                         <th>User Name</th>
                         <th>Reserved From</th>
                         <th>Reserved To</th>
+                        <th>To Campus</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -195,6 +197,8 @@
                             <td>${reservation.userName}</td>
                             <td>${reservation.reservedFrom}</td>
                             <td>${reservation.reservedTo}</td>
+                            <td>${reservation.toCampus}</td>
+                            <td>${reservation.status}</td>
                             <td>
                                 <button type="button" class="btn btn-primary" onclick="arrangeDelivery('${reservation.reservationID}', '${reservation.toCampus}');">Arrange Delivery</button>
                             </td>
@@ -208,7 +212,7 @@
                                             <th>Name</th>
                                             <th>Description</th>
                                             <th>Campus Name</th>
-                                            <th>Current Campus</th>
+                                            <th>Destination Campus</th>
                                             <th>Campus Address</th>
                                             <th>Condition</th>
                                             <th>Exclusive For Staff</th>
@@ -220,8 +224,8 @@
                                             <tr>
                                                 <td>${equipment.name}</td>
                                                 <td>${equipment.description}</td>
-                                                <td>${equipment.campusName}</td>
                                                 <td>${equipment.currentCampus}</td>
+                                                <td>${reservation.toCampus}</td>
                                                 <td>${reservation.address}</td>
                                                 <td>${equipment.condition}</td>
                                                 <td>${equipment.exclusiveForStaff}</td>

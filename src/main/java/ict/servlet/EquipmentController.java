@@ -218,7 +218,7 @@ public class EquipmentController extends HttpServlet {
 
                 }
 
-                boolean borrowingRecordAdded = db.addBorrowingRecord(reservationID, new java.util.Date()); // using current date as borrow date
+                boolean borrowingRecordAdded = db.addBorrowingRecord(reservationID, new java.util.Date()); 
                 if (!borrowingRecordAdded) {
                     throw new SQLException("Failed to add borrowing record.");
                 }

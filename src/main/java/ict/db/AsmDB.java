@@ -565,7 +565,7 @@ public class AsmDB {
                         reservationId = rs.getInt(1);
                     }
                 }
-                sendNotificationsToTechAndAdminByCampus(destinationCampus, "New reservation needs approval", "A new reservation with ID " + reservationId + " needs your attention.");
+
             }
             return reservationId;
         } catch (SQLException ex) {
@@ -596,13 +596,35 @@ public class AsmDB {
     }
 
     public boolean addReservationEquipment(int reservationID, String equipmentID) throws SQLException, IOException {
-        String query = "INSERT INTO ReservationEquipment (ReservationID, EquipmentID) VALUES (?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, reservationID);
-            pstmt.setString(2, equipmentID);
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
+
+        String destinationCampus = "";
+
+        String campusQuery = "SELECT CurrentCampus FROM Equipment WHERE EquipmentID = ?";
+
+        String insertQuery = "INSERT INTO ReservationEquipment (ReservationID, EquipmentID) VALUES (?, ?)";
+
+        try (Connection conn = getConnection(); PreparedStatement campusStmt = conn.prepareStatement(campusQuery); PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+
+            campusStmt.setString(1, equipmentID);
+            ResultSet rs = campusStmt.executeQuery();
+            if (rs.next()) {
+                destinationCampus = rs.getString("CurrentCampus");
+            }
+
+            insertStmt.setInt(1, reservationID);
+            insertStmt.setString(2, equipmentID);
+            int affectedRows = insertStmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                sendNotificationsToTechAndAdminByCampus(destinationCampus, "New reservation needs approval", "A new reservation with ID " + reservationID + " needs your attention.");
+                return true;
+            }
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            throw e;
         }
+        return false;
     }
 
     public boolean addBorrowingRecord(int reservationID, Date borrowDate) throws SQLException, IOException {
@@ -626,7 +648,7 @@ public class AsmDB {
 
     public List<BorrowingRecordsBean> fetchBorrowingRecords(String userID) throws SQLException, IOException {
         List<BorrowingRecordsBean> records = new ArrayList<>();
-        String sql = "SELECT br.RecordID, br.BorrowDate, re.ReturnDate, r.ReservationID, "
+        String sql = "SELECT DISTINCT br.RecordID, br.BorrowDate, re.ReturnDate, r.ReservationID, "
                 + "GROUP_CONCAT(DISTINCT e.Name SEPARATOR '&') AS EquipmentNames, COUNT(re.EquipmentID) AS TotalQuantity "
                 + "FROM BorrowingRecords br "
                 + "JOIN Reservation r ON br.ReservationID = r.ReservationID "
@@ -634,7 +656,7 @@ public class AsmDB {
                 + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
                 + "LEFT JOIN Delivery d ON r.ReservationID = d.ReservationID "
                 + "WHERE r.UserID = ? "
-                + "GROUP BY br.RecordID, br.BorrowDate, re.ReturnDate, r.ReservationID "
+                + "GROUP BY br.RecordID "
                 + "ORDER BY r.ReservationID DESC";
 
         try (Connection conn = this.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -900,15 +922,18 @@ public class AsmDB {
 
     public List<ReservationBean> fetchReservationsForDelivery(String userCampus) throws SQLException, IOException {
         List<ReservationBean> reservations = new ArrayList<>();
-        String sql = "SELECT r.ReservationID, r.UserID,r.DestinationCampus,c.Address AS CampusAddress, u.FullName AS userName, r.ReservedFrom, r.ReservedTo  "
+        String sql = "SELECT DISTINCT r.ReservationID, r.UserID, r.DestinationCampus, dc.Address AS DestinationCampusAddress, u.FullName AS userName, r.ReservedFrom, r.ReservedTo, oc.CampusName AS OriginalCampusName, "
+                + "ec.Address AS EquipmentCampusAddress, re.Status "
                 + "FROM Reservation r "
                 + "JOIN Users u ON r.UserID = u.UserID "
                 + "JOIN BorrowingRecords br ON r.ReservationID = br.ReservationID "
                 + "JOIN ReservationEquipment re ON r.ReservationID = re.ReservationID "
                 + "LEFT JOIN Delivery d ON r.ReservationID = d.ReservationID "
-                + "JOIN Campus c ON r.DestinationCampus = c.CampusName "
                 + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
-                + "WHERE e.CampusName = ? AND re.Status IN ('Reserved', 'Returned')"
+                + "JOIN Campus oc ON e.CampusName = oc.CampusName "
+                + "JOIN Campus ec ON e.CampusName = ec.CampusName "
+                + "JOIN Campus dc ON r.DestinationCampus = dc.CampusName "
+                + "WHERE e.CurrentCampus = ? AND re.Status IN ('Reserved', 'Returned') "
                 + "ORDER BY r.ReservedFrom DESC";
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -916,15 +941,33 @@ public class AsmDB {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     ReservationBean reservation = new ReservationBean();
-                    reservation.setReservationID(rs.getInt("ReservationID"));
-                    reservation.setUserID(rs.getString("UserID"));
-                    reservation.setUserName(rs.getString("userName"));
-                    reservation.setReservedFrom(rs.getDate("ReservedFrom"));
-                    reservation.setReservedTo(rs.getDate("ReservedTo"));
-                    reservation.setToCampus(rs.getString("DestinationCampus"));
-                    reservation.setAddress(rs.getString("CampusAddress"));
-                    reservation.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
-                    reservations.add(reservation);
+                    String status = rs.getString("Status");
+                    String CampusName = rs.getString("OriginalCampusName");
+                    if ("Reserved".equals(status)) {
+                        reservation.setReservationID(rs.getInt("ReservationID"));
+                        reservation.setUserID(rs.getString("UserID"));
+                        reservation.setUserName(rs.getString("userName"));
+                        reservation.setReservedFrom(rs.getDate("ReservedFrom"));
+                        reservation.setReservedTo(rs.getDate("ReservedTo"));
+                        reservation.setToCampus(rs.getString("DestinationCampus"));
+                         reservation.setStatus(rs.getString("Status"));
+                        reservation.setAddress(rs.getString("DestinationCampusAddress"));
+                        reservation.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
+                        reservations.add(reservation);
+                    } else if ("Returned".equals(status)) {
+                        reservation.setReservationID(rs.getInt("ReservationID"));
+                        reservation.setUserID(rs.getString("UserID"));
+                        reservation.setUserName(rs.getString("userName"));
+                        reservation.setReservedFrom(rs.getDate("ReservedFrom"));
+                        reservation.setReservedTo(rs.getDate("ReservedTo"));
+                        reservation.setToCampus(rs.getString("OriginalCampusName"));
+                         reservation.setStatus(rs.getString("Status"));
+                        reservation.setAddress(rs.getString("EquipmentCampusAddress"));
+                        reservation.setEquipmentList(fetchEquipmentListForReservationAndCampusStatus(rs.getInt("ReservationID"), CampusName, conn));
+                        reservations.add(reservation);
+                    }
+                    
+
                 }
             }
         }
@@ -988,7 +1031,63 @@ public class AsmDB {
         String sql = "SELECT e.EquipmentID, e.Name, e.Description, e.CampusName, e.CurrentCampus, e.EquipmentCondition, e.ExclusiveForStaff, re.Status "
                 + "FROM Equipment e "
                 + "JOIN ReservationEquipment re ON e.EquipmentID = re.EquipmentID "
-                + "WHERE re.ReservationID = ? AND e.CampusName = ?";
+                + "WHERE re.ReservationID = ? AND e.CampusName = ? AND re.Status != 'Declined' ";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, reservationID);
+            pstmt.setString(2, userCampus);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    EquipmentBean equipment = new EquipmentBean();
+                    equipment.setEquipmentID(rs.getString("EquipmentID"));
+                    equipment.setName(rs.getString("Name"));
+                    equipment.setDescription(rs.getString("Description"));
+                    equipment.setCampusName(rs.getString("CampusName"));
+                    equipment.setCurrentCampus(rs.getString("CurrentCampus"));
+                    equipment.setCondition(rs.getString("EquipmentCondition"));
+                    equipment.setExclusiveForStaff(rs.getString("ExclusiveForStaff"));
+                    equipment.setStatus(rs.getString("Status"));
+                    equipmentList.add(equipment);
+                }
+            }
+        }
+        return equipmentList;
+    }
+
+    private List<EquipmentBean> fetchEquipmentListForReservationAndCampusStatus(int reservationID, String userCampus, Connection conn) throws SQLException {
+        List<EquipmentBean> equipmentList = new ArrayList<>();
+        String sql = "SELECT e.EquipmentID, e.Name, e.Description, e.CampusName, e.CurrentCampus, e.EquipmentCondition, e.ExclusiveForStaff, re.Status "
+                + "FROM Equipment e "
+                + "JOIN ReservationEquipment re ON e.EquipmentID = re.EquipmentID "
+                + "WHERE re.ReservationID = ? AND e.CampusName = ? AND re.Status != 'Declined'";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, reservationID);
+            pstmt.setString(2, userCampus);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    EquipmentBean equipment = new EquipmentBean();
+                    equipment.setEquipmentID(rs.getString("EquipmentID"));
+                    equipment.setName(rs.getString("Name"));
+                    equipment.setDescription(rs.getString("Description"));
+                    equipment.setCampusName(rs.getString("CampusName"));
+                    equipment.setCurrentCampus(rs.getString("CampusName"));
+                    equipment.setCondition(rs.getString("EquipmentCondition"));
+                    equipment.setExclusiveForStaff(rs.getString("ExclusiveForStaff"));
+                    equipment.setStatus(rs.getString("Status"));
+                    equipmentList.add(equipment);
+                }
+            }
+        }
+        return equipmentList;
+    }
+
+    private List<EquipmentBean> fetchEquipmentListForReservationAndCurrentStatus(int reservationID, String userCampus, Connection conn) throws SQLException {
+        List<EquipmentBean> equipmentList = new ArrayList<>();
+        String sql = "SELECT e.EquipmentID, e.Name, e.Description, e.CampusName, e.CurrentCampus, e.EquipmentCondition, e.ExclusiveForStaff, re.Status "
+                + "FROM Equipment e "
+                + "JOIN ReservationEquipment re ON e.EquipmentID = re.EquipmentID "
+                + "WHERE re.ReservationID = ? AND e.CurrentCampus = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, reservationID);
@@ -1134,7 +1233,7 @@ public class AsmDB {
         } catch (SQLException e) {
             throw new SQLException("Error while fetching equipment name: " + e.getMessage(), e);
         }
-        return equipmentName;  // Return the fetched name or null
+        return equipmentName;
     }
 
     public boolean addDelivery(int reservationID, String fromCampus, String toCampus, String status) throws SQLException, IOException {
@@ -1155,10 +1254,17 @@ public class AsmDB {
     public List<DeliveryBean> fetchAllDeliveries(String campusName) throws SQLException, IOException {
         List<DeliveryBean> deliveries = new ArrayList<>();
 
-        String sql = "SELECT d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus, d.CourierID, d.PickupTime, d.DeliveryTime, d.Status, u.FullName AS CourierName "
+        String sql = "SELECT DISTINCT d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus, d.CourierID, d.PickupTime, d.DeliveryTime, d.Status, u.FullName AS CourierName,e.CurrentCampus, re.Status AS REStatus "
                 + "FROM Delivery d "
                 + "JOIN Users u ON d.CourierID = u.UserID "
-                + "WHERE d.ToCampus = ? AND d.Status = 'delivered' "
+                + "JOIN Reservation r ON d.ReservationID = r.ReservationID "
+                + "JOIN "
+                + "ReservationEquipment re ON r.ReservationID = re.ReservationID "
+                + "JOIN "
+                + "Equipment e ON re.EquipmentID = e.EquipmentID "
+                + "JOIN Users ur ON r.UserID = ur.UserID "
+                + "WHERE d.ToCampus = ? AND d.Status = 'Delivered' "
+                + "AND ur.CampusName = r.DestinationCampus "
                 + "ORDER BY d.PickupTime DESC";
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1177,8 +1283,14 @@ public class AsmDB {
                     delivery.setDeliveryTime(rs.getTimestamp("DeliveryTime"));
                     delivery.setStatus(rs.getString("Status"));
                     delivery.setEquipmentList(new ArrayList<>());
-                    delivery.setEquipmentList(fetchEquipmentListForReservationDeliveryCampus(rs.getInt("ReservationID"), campusName, conn));
-                    deliveries.add(delivery);
+                    delivery.setEquipmentList(fetchEquipmentListForReservationDeliveryCampus(rs.getInt("ReservationID"), delivery.getFromCampus(), conn));
+                    if ("Reserved".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationDeliveryCampus(rs.getInt("ReservationID"), delivery.getFromCampus(), conn));
+                        deliveries.add(delivery);
+                    } else if ("Returned".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationAndCurrentStatus(rs.getInt("ReservationID"), rs.getString("CurrentCampus"), conn));
+                        deliveries.add(delivery);
+                    }
 
                 }
             }
@@ -1436,30 +1548,15 @@ public class AsmDB {
 
     public List<DeliveryBean> fetchActiveDeliveries(String userCampus) throws SQLException, IOException {
         List<DeliveryBean> deliveries = new ArrayList<>();
-        String sql = "SELECT d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus,c.Address, d.Status, d.PickupTime, d.DeliveryTime, "
-                + "GROUP_CONCAT(DISTINCT e.EquipmentID ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentIDs, "
-                + "GROUP_CONCAT(DISTINCT e.Name ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentNames, "
-                + "GROUP_CONCAT(DISTINCT e.Description ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentDescriptions, "
-                + "GROUP_CONCAT(DISTINCT e.CampusName ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentCampuses, "
-                + "GROUP_CONCAT(DISTINCT e.CurrentCampus ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentCurrentCampuses, "
-                + "GROUP_CONCAT(DISTINCT e.EquipmentCondition ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentConditions, "
-                + "GROUP_CONCAT(DISTINCT e.ExclusiveForStaff ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentExclusiveForStaff "
-                + "FROM "
-                + "Delivery d "
-                + "JOIN "
-                + "Reservation r ON d.ReservationID = r.ReservationID "
-                + "JOIN "
-                + "ReservationEquipment re ON r.ReservationID = re.ReservationID "
-                + "JOIN "
-                + "Equipment e ON re.EquipmentID = e.EquipmentID "
-                + "JOIN Campus c ON r.DestinationCampus = c.CampusName "
-                + "WHERE "
-                + "d.Status IN ('Scheduled') "
+        String sql = "SELECT DISTINCT d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus, c.Address, d.Status, d.PickupTime, d.DeliveryTime, e.CurrentCampus,re.Status AS REStatus "
+                + "FROM Delivery d "
+                + "JOIN Reservation r ON d.ReservationID = r.ReservationID "
+                + "JOIN ReservationEquipment re ON r.ReservationID = re.ReservationID "
+                + "JOIN Equipment e ON re.EquipmentID = e.EquipmentID "
+                + "JOIN Campus c ON d.ToCampus = c.CampusName "
+                + "WHERE d.Status = 'Scheduled' "
                 + "AND d.FromCampus = ? "
-                + "GROUP BY "
-                + "d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus, d.Status, d.PickupTime, d.DeliveryTime "
-                + "ORDER BY "
-                + "d.PickupTime DESC;";
+                + "ORDER BY d.PickupTime DESC";
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, userCampus);
@@ -1475,9 +1572,21 @@ public class AsmDB {
                     delivery.setAddress(rs.getString("Address"));
                     delivery.setPickupTime(rs.getTimestamp("PickupTime"));
                     delivery.setDeliveryTime(rs.getTimestamp("DeliveryTime"));
-                    delivery.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
-                    deliveries.add(delivery);
+                    if ("Reserved".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
+                        deliveries.add(delivery);
+                    } else if ("Returned".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationAndCurrentStatus(rs.getInt("ReservationID"), rs.getString("CurrentCampus"), conn));
+                        deliveries.add(delivery);
+                    }
+
                 }
+            } catch (SQLException e) {
+                System.err.println("SQL Error: " + e.getMessage());
+                throw e;
+            } catch (Exception e) {
+                System.err.println("General Error: " + e.getMessage());
+                throw new IOException("Error retrieving deliveries: " + e.getMessage(), e);
             }
         }
         return deliveries;
@@ -1485,14 +1594,7 @@ public class AsmDB {
 
     public List<DeliveryBean> fetchActiveInTransit(String userCampus) throws SQLException, IOException {
         List<DeliveryBean> deliveries = new ArrayList<>();
-        String sql = "SELECT d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus, d.Status, d.PickupTime, d.DeliveryTime,c.Address "
-                + "GROUP_CONCAT(DISTINCT e.EquipmentID ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentIDs, "
-                + "GROUP_CONCAT(DISTINCT e.Name ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentNames, "
-                + "GROUP_CONCAT(DISTINCT e.Description ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentDescriptions, "
-                + "GROUP_CONCAT(DISTINCT e.CampusName ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentCampuses, "
-                + "GROUP_CONCAT(DISTINCT e.CurrentCampus ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentCurrentCampuses, "
-                + "GROUP_CONCAT(DISTINCT e.EquipmentCondition ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentConditions, "
-                + "GROUP_CONCAT(DISTINCT e.ExclusiveForStaff ORDER BY e.EquipmentID SEPARATOR ', ') AS EquipmentExclusiveForStaff "
+        String sql = "SELECT d.DeliveryID, d.ReservationID, d.FromCampus, d.ToCampus, d.Status, d.PickupTime, d.DeliveryTime,c.Address,e.CurrentCampus, re.Status AS REStatus "
                 + "FROM "
                 + "Delivery d "
                 + "JOIN "
@@ -1524,8 +1626,19 @@ public class AsmDB {
                     delivery.setAddress(rs.getString("Address"));
                     delivery.setPickupTime(rs.getTimestamp("PickupTime"));
                     delivery.setDeliveryTime(rs.getTimestamp("DeliveryTime"));
-                    delivery.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
-                    deliveries.add(delivery);
+                    if ("Reserved".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
+                        deliveries.add(delivery);
+
+                    } else if ("Returned".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationAndCurrentStatus(rs.getInt("ReservationID"), rs.getString("CurrentCampus"), conn));
+                        deliveries.add(delivery);
+
+                    } else if ("Waiting".equals(rs.getString("REStatus"))) {
+                        delivery.setEquipmentList(fetchEquipmentListForReservationAndCampus(rs.getInt("ReservationID"), userCampus, conn));
+                        deliveries.add(delivery);
+                    }
+
                 }
             }
         }
@@ -1686,16 +1799,6 @@ public class AsmDB {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
         }
     }
 

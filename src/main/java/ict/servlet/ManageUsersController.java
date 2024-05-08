@@ -59,6 +59,9 @@ public class ManageUsersController extends HttpServlet {
     private void listUsers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         UserBean user = (UserBean) session.getAttribute("userBean");
+
+        String dashboardURL = getDashboardURL(request);
+        request.setAttribute("dashboardURL", dashboardURL);
         try {
             List<UserBean> users = db.getAllUsersByCampus(user.getCampusName());
             request.setAttribute("users", users);
@@ -105,15 +108,15 @@ public class ManageUsersController extends HttpServlet {
             boolean success = db.updateUserDetails(user);
             if (success) {
                 request.setAttribute("successMessage", "User details successfully updated.");
-                 listUsers(request, response);
+                listUsers(request, response);
             } else {
                 request.setAttribute("errorMessage", "Failed to update user details.");
             }
-           
+
             request.getRequestDispatcher("/manageUsers.jsp").forward(request, response);
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Database error: " + e.getMessage());
-           
+
             request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
         }
     }
@@ -161,6 +164,28 @@ public class ManageUsersController extends HttpServlet {
             request.setAttribute("errorMessage", "Database error: " + e.getMessage());
             request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
         }
+    }
+
+    private String getDashboardURL(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            UserBean user = (UserBean) session.getAttribute("userBean");
+            if (user != null) {
+                switch (user.getRole()) {
+                    case "AdminTechnician":
+                        return "/AdminController";
+                    case "Technician":
+                        return "/TechDashboard";
+                    case "Courier":
+                        return "/CourierControllor";
+                    case "Staff":
+                        return "/StaffDashboard";
+                    default:
+                        return "/UserDashboard";
+                }
+            }
+        }
+        return "";
     }
 
 }

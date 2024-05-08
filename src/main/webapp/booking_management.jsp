@@ -128,7 +128,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Reservation ID</th>
-                        <th>User ID</th>
+                       
                         <th>User Name</th>
                         <th>Reserved From</th>
                         <th>Reserved To</th>
@@ -139,7 +139,7 @@
                     <c:forEach var="reservation" items="${reservations}" varStatus="status">
                         <tr>
                             <td>${reservation.reservationID}</td>
-                            <td>${reservation.userID}</td>
+                          
                             <td>${reservation.userName}</td>
                             <td>${reservation.reservedFrom}</td>
                             <td>${reservation.reservedTo}</td>
