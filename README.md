@@ -281,7 +281,7 @@ Manages system notifications for users.
       - Booking Rate Analytic
     - Delivery Arrange
 
-  -Courier
+  - Courier
 
   - View & Pickup Equipment
   - Update Delivery Status
