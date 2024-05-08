@@ -180,7 +180,7 @@
             </div>
         </div>
 
-        <!-- Report Damage Modal (using Bootstrap modal component) -->
+       
         <div class="modal fade" id="reportDamageModal" tabindex="-1" aria-labelledby="reportDamageModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">

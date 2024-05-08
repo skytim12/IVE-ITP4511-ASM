@@ -10,7 +10,6 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import ict.db.AsmDB;
 import ict.bean.EquipmentBean;
-import ict.bean.ReservationBean;
 import java.util.List;
 
 /**
